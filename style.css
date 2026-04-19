@@ -2738,3 +2738,53 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ==========================================================
+   SITE COPYRIGHT · bottom-most footer (always visible)
+   ========================================================== */
+.site-copyright {
+    display: block;
+    text-align: center;
+    padding: 22px 20px 36px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: #8a8a84;
+    background: transparent;
+}
+@media print {
+    .site-copyright {
+        padding: 8pt 0;
+        font-size: 8pt;
+        color: #555 !important;
+    }
+}
+
+/* ==========================================================
+   CONTENT PROTECTION · applied by script.js outside localhost
+   — prevents text drag-select, image drag, and copy shortcuts.
+   Editable surfaces (contenteditable in edit mode) are exempt so
+   the edit server still works from localhost. Links, buttons and
+   form controls stay interactive.
+   ========================================================== */
+html.content-protect,
+html.content-protect body {
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+html.content-protect [contenteditable="true"],
+html.content-protect input,
+html.content-protect textarea {
+    -webkit-user-select: text;
+    user-select: text;
+}
+html.content-protect img {
+    -webkit-user-drag: none;
+    user-drag: none;
+    pointer-events: none;
+}
+html.content-protect a img,
+html.content-protect [data-image-slot] img {
+    pointer-events: auto;
+}

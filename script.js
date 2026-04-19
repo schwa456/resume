@@ -93,4 +93,35 @@
             r.style.setProperty("--p", w);
         });
     });
+
+    /* ---------- Content protection (production only) ----------
+       Prevents casual text copy, image drag-save, right-click save, and
+       blocks attachment downloads with a friendly notice. Disabled on
+       localhost so the edit-server workflow stays usable. */
+    const host = location.hostname;
+    const isLocal = host === "localhost" || host === "127.0.0.1" || host === "";
+    if (!isLocal) {
+        document.documentElement.classList.add("content-protect");
+
+        const block = (e) => { e.preventDefault(); return false; };
+        ["contextmenu", "copy", "cut", "dragstart", "selectstart"].forEach((evt) => {
+            document.addEventListener(evt, block);
+        });
+
+        /* Hard-block attachment downloads — catches the click in the
+           capture phase so the browser never starts the download. */
+        document.addEventListener("click", (e) => {
+            const a = e.target.closest("a[download]");
+            if (!a) return;
+            e.preventDefault();
+            e.stopPropagation();
+            alert("열람 전용 포트폴리오입니다. 파일 다운로드는 제공되지 않습니다.");
+        }, true);
+
+        /* Some browsers still allow image drag even with CSS — strip it
+           on every img explicitly. */
+        document.querySelectorAll("img").forEach((img) => {
+            img.setAttribute("draggable", "false");
+        });
+    }
 })();
