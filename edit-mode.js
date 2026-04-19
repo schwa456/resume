@@ -291,6 +291,20 @@
     docInput.style.display = "none";
     document.documentElement.appendChild(docInput);
 
+    /* Parse a Response defensively — some error paths (old server version,
+       routing miss, connection drop) return empty or non-JSON bodies. */
+    const parseJsonResponse = async (res) => {
+        const text = await res.text();
+        if (!text) {
+            return { ok: false, error: `empty response (HTTP ${res.status}) — edit-server 재시작이 필요할 수 있습니다` };
+        }
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            return { ok: false, error: `non-JSON response (HTTP ${res.status}): ${text.slice(0, 200)}` };
+        }
+    };
+
     const uploadFile = async (file) => {
         const buf = await file.arrayBuffer();
         const res = await fetch("/upload", {
@@ -301,7 +315,7 @@
             },
             body: buf
         });
-        return res.json();
+        return parseJsonResponse(res);
     };
 
     const extOf = (name) => {
@@ -463,11 +477,11 @@
                     message: "편집 모드: 인라인 수정 저장"
                 })
             });
-            const data = await res.json();
+            const data = await parseJsonResponse(res);
             if (!res.ok || !data.ok) {
                 setStatus("save failed", true);
-                console.error("save failed:", data);
-                alert("저장 실패\n" + (data.error || res.status) + "\n" + (data.stderr || ""));
+                console.error("save failed:", res.status, data);
+                alert("저장 실패 (HTTP " + res.status + ")\n" + (data.error || "") + "\n" + (data.stderr || ""));
                 return;
             }
             if (data.committed === false) {

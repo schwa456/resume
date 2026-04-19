@@ -74,16 +74,24 @@ function readBody(req) {
     return new Promise((resolve, reject) => {
         const chunks = [];
         let size = 0;
+        let aborted = false;
         req.on("data", (c) => {
+            if (aborted) return;
             size += c.length;
             if (size > MAX_BODY) {
-                reject(new Error("Body too large"));
-                req.destroy();
+                aborted = true;
+                /* Drain remaining data instead of destroying the socket so the
+                   response handler can still send a JSON error back. */
+                req.resume();
+                reject(new Error(`Body too large (> ${MAX_BODY} bytes)`));
                 return;
             }
             chunks.push(c);
         });
-        req.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+        req.on("end", () => {
+            if (aborted) return;
+            resolve(Buffer.concat(chunks).toString("utf-8"));
+        });
         req.on("error", reject);
     });
 }
@@ -121,30 +129,45 @@ function readRawBody(req, limit) {
     return new Promise((resolve, reject) => {
         const chunks = [];
         let size = 0;
+        let aborted = false;
         req.on("data", (c) => {
+            if (aborted) return;
             size += c.length;
             if (size > limit) {
-                reject(new Error("body too large"));
-                req.destroy();
+                aborted = true;
+                req.resume();
+                reject(new Error(`Body too large (> ${limit} bytes)`));
                 return;
             }
             chunks.push(c);
         });
-        req.on("end", () => resolve(Buffer.concat(chunks)));
+        req.on("end", () => {
+            if (aborted) return;
+            resolve(Buffer.concat(chunks));
+        });
         req.on("error", reject);
     });
+}
+
+function sendJson(res, status, payload) {
+    if (res.headersSent || res.writableEnded) return;
+    try {
+        res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" })
+            .end(JSON.stringify(payload));
+    } catch (e) {
+        log("sendJson failed:", e.message);
+    }
 }
 
 async function handleUpload(req, res) {
     try {
         const rawName = decodeURIComponent(req.headers["x-filename"] || "upload");
         const ext = path.extname(rawName).toLowerCase();
-        if (!ALLOWED_IMG.has(ext)) {
-            res.writeHead(400, { "Content-Type": "application/json" })
-                .end(JSON.stringify({ ok: false, error: `ext not allowed: ${ext}` }));
+        if (!ALLOWED_IMG.has(ext) && !ALLOWED_DOC.has(ext)) {
+            sendJson(res, 400, { ok: false, error: `ext not allowed: ${ext || "(none)"}` });
             return;
         }
-        const base = path.basename(rawName, ext).replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 60) || "img";
+        const base = path.basename(rawName, ext).replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 60) || "file";
         const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
         const filename = `${ts}-${base}${ext}`;
 
@@ -157,23 +180,26 @@ async function handleUpload(req, res) {
         log("uploaded", filename, `(${buf.length} bytes)`);
 
         const relPath = UPLOADS_REL.replace(/\\/g, "/") + "/" + filename;
-        res.writeHead(200, { "Content-Type": "application/json" })
-            .end(JSON.stringify({ ok: true, path: relPath, bytes: buf.length }));
+        sendJson(res, 200, { ok: true, path: relPath, bytes: buf.length });
     } catch (err) {
         log("upload error:", err.message);
-        res.writeHead(500, { "Content-Type": "application/json" })
-            .end(JSON.stringify({ ok: false, error: err.message }));
+        sendJson(res, 500, { ok: false, error: err.message });
     }
 }
 
 async function handleSave(req, res) {
     try {
         const body = await readBody(req);
-        const payload = JSON.parse(body);
+        let payload;
+        try {
+            payload = JSON.parse(body);
+        } catch (e) {
+            sendJson(res, 400, { ok: false, error: "invalid json body: " + e.message });
+            return;
+        }
         const html = payload.html;
         if (typeof html !== "string" || html.length < 200 || !/<html/i.test(html)) {
-            res.writeHead(400, { "Content-Type": "application/json" })
-                .end(JSON.stringify({ ok: false, error: "invalid html payload" }));
+            sendJson(res, 400, { ok: false, error: "invalid html payload" });
             return;
         }
         const target = path.join(ROOT, "index.html");
@@ -186,12 +212,10 @@ async function handleSave(req, res) {
         );
         log("commit result:", result);
 
-        res.writeHead(200, { "Content-Type": "application/json" })
-            .end(JSON.stringify({ ok: true, ...result }));
+        sendJson(res, 200, { ok: true, ...result });
     } catch (err) {
         log("save error:", err.message, err.stderr || "");
-        res.writeHead(500, { "Content-Type": "application/json" })
-            .end(JSON.stringify({ ok: false, error: err.message, stderr: err.stderr || "" }));
+        sendJson(res, 500, { ok: false, error: err.message, stderr: err.stderr || "" });
     }
 }
 
@@ -209,11 +233,23 @@ const server = http.createServer((req, res) => {
         serveStatic(req, res);
         return;
     }
-    res.writeHead(405).end("Method Not Allowed");
+    /* Unknown route: respond with JSON so the client's res.json() parser
+       doesn't choke on plain text. */
+    sendJson(res, 405, { ok: false, error: `method not allowed: ${req.method} ${req.url}` });
+});
+
+/* Surface otherwise-silent crashes so they show up in the server log and
+   the client doesn't just see a dropped connection. */
+process.on("uncaughtException", (err) => {
+    log("UNCAUGHT EXCEPTION:", err.stack || err.message);
+});
+process.on("unhandledRejection", (reason) => {
+    log("UNHANDLED REJECTION:", reason && reason.stack ? reason.stack : reason);
 });
 
 server.listen(PORT, "127.0.0.1", () => {
     log(`edit server running at http://localhost:${PORT}/?edit=1`);
     log(`serving from: ${ROOT}`);
-    log(`save endpoint: PUT /save (writes index.html + git commit + push)`);
+    log(`save endpoint:   PUT  /save   (writes index.html + git commit + push)`);
+    log(`upload endpoint: POST /upload (writes to ${UPLOADS_REL}/)`);
 });
