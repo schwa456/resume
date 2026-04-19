@@ -2094,6 +2094,15 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
 .f-case-port .f-cover:has(.port-photo:not([src=""])) {
     color: #fff;
     border-color: transparent;
+    /* Image reaches every edge — the 24px/26px inset is carried by
+       margins on the text elements below. */
+    padding: 0;
+}
+.f-case-port .f-cover:has(.port-photo:not([src=""])) .f-cover-num {
+    margin: 24px 26px 0;
+}
+.f-case-port .f-cover:has(.port-photo:not([src=""])) .f-cover-tag {
+    margin: 0 26px 24px;
 }
 .f-case-port .f-cover:has(.port-photo:not([src=""])) .f-cover-num,
 .f-case-port .f-cover:has(.port-photo:not([src=""])) .f-cover-tag,
@@ -2137,10 +2146,13 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
     overflow: hidden;
     color: #fff;
     border-color: transparent;
+    /* Zero padding so the image reaches every edge; previous 28px padding
+       was read as a "black frame" around the photo. Number/tag now carry
+       the visual inset via margins. */
+    padding: 0;
 }
 .f-cover.has-photo .f-cover-num,
-.f-cover.has-photo .f-cover-tag,
-.f-cover.has-photo .pv-mark {
+.f-cover.has-photo .f-cover-tag {
     position: relative;
     z-index: 3;
     color: #fff;
@@ -2148,15 +2160,32 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
         0 1px 2px rgba(0, 0, 0, 0.55),
         0 2px 14px rgba(0, 0, 0, 0.45);
 }
+/* pv-mark already has its own position: absolute + inset: 0 in port cases.
+   Only bump z-index so it stays above the image and share the shadow tone —
+   do NOT override position, or the overlay collapses to zero size. */
+.f-cover.has-photo .pv-mark {
+    z-index: 3;
+    color: #fff;
+    opacity: 0.95;
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.55),
+        0 2px 14px rgba(0, 0, 0, 0.45);
+}
+.f-cover.has-photo .f-cover-num {
+    margin: 28px 28px 0;
+}
 .f-cover.has-photo .f-cover-tag {
+    margin: 0 28px 28px;
+    align-self: flex-start;
     border-color: rgba(255, 255, 255, 0.85);
     background: rgba(15, 15, 14, 0.28);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
 }
-.f-cover.has-photo .pv-mark {
-    opacity: 0.95;
-}
+/* Port-case uses tighter inset (24px 26px) in its default padding,
+   so match that when the photo-driven padding:0 kicks in. */
+.f-case-port .f-cover.has-photo .f-cover-num { margin: 24px 26px 0; }
+.f-case-port .f-cover.has-photo .f-cover-tag { margin: 0 26px 24px; }
 
 /* Career cover that shows a real photo (C02) */
 .f-cover.f-cover-photo {
@@ -2175,6 +2204,8 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
 }
 .f-cover.f-cover-photo {
     border-color: transparent;
+    /* Match has-photo treatment: image reaches edges, text carries inset. */
+    padding: 0;
 }
 .f-cover.f-cover-photo .f-cover-num,
 .f-cover.f-cover-photo .f-cover-tag {
@@ -2185,7 +2216,10 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
         0 1px 2px rgba(0, 0, 0, 0.55),
         0 2px 14px rgba(0, 0, 0, 0.45);
 }
+.f-cover.f-cover-photo .f-cover-num { margin: 28px 28px 0; }
 .f-cover.f-cover-photo .f-cover-tag {
+    margin: 0 28px 28px;
+    align-self: flex-start;
     border-color: rgba(255, 255, 255, 0.85);
     background: rgba(15, 15, 14, 0.28);
     backdrop-filter: blur(4px);
