@@ -1311,6 +1311,17 @@
                 const [tx, ty] = parseTranslate(activeImg.style.transform);
                 activeImg.style.transform = composeTransform(tx, ty, s);
                 activeImg.style.transformOrigin = "50% 50%";
+                /* Shrinking below 1x with object-fit:cover would keep the
+                   image cropped to the frame ratio — the user sees a
+                   clipped thumbnail. Switch to contain so the full image
+                   shows, and sync the UI select to match. */
+                if (s < 1) {
+                    const currentFit = activeImg.style.objectFit || window.getComputedStyle(activeImg).objectFit;
+                    if (currentFit !== "contain") {
+                        activeImg.style.objectFit = "contain";
+                        fitSelect.value = "contain";
+                    }
+                }
             } else {
                 activeImg.style.width = widthInput.value + "%";
             }
