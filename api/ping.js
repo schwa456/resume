@@ -67,12 +67,19 @@ export default async function handler(req, res) {
 
         if (!resp.ok) {
             const errBody = await resp.text();
+            console.error("[ping] resend rejected", {
+                status: resp.status,
+                from,
+                to,
+                body: errBody
+            });
             res.status(502).json({ ok: false, error: "resend failed", status: resp.status, body: errBody });
             return;
         }
 
         res.status(200).json({ ok: true });
     } catch (err) {
+        console.error("[ping] unexpected error", err);
         res.status(500).json({ ok: false, error: err.message });
     }
 }
