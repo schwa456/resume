@@ -2087,29 +2087,31 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
     border-radius: inherit;
 }
 .port-photo[src=""] { display: none; }
-/* When a photo is present, darken via overlay so number/tag stay legible */
+/* Photo is present in a portfolio/writing slot.
+   No dark gradient overlay — the image shows clean to the edges.
+   Legibility of number/tag/pv-mark is carried by a strong text-shadow
+   on the text elements themselves, plus a small blur chip for the tag. */
 .f-case-port .f-cover:has(.port-photo:not([src=""])) {
     color: #fff;
-}
-.f-case-port .f-cover:has(.port-photo:not([src=""]))::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-        linear-gradient(180deg, rgba(10, 14, 30, 0.48) 0%, rgba(10, 14, 30, 0.12) 38%, rgba(10, 14, 30, 0.68) 100%);
-    z-index: 1;
-    pointer-events: none;
-    border-radius: inherit;
+    border-color: transparent;
 }
 .f-case-port .f-cover:has(.port-photo:not([src=""])) .f-cover-num,
 .f-case-port .f-cover:has(.port-photo:not([src=""])) .f-cover-tag,
 .f-case-port .f-cover:has(.port-photo:not([src=""])) .pv-mark {
     z-index: 2;
     color: #fff;
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.55),
+        0 2px 14px rgba(0, 0, 0, 0.45);
+}
+.f-case-port .f-cover:has(.port-photo:not([src=""])) .f-cover-tag {
+    border-color: rgba(255, 255, 255, 0.85);
+    background: rgba(15, 15, 14, 0.28);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 .f-case-port .f-cover:has(.port-photo:not([src=""])) .pv-mark {
     opacity: 0.95;
-    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
 }
 
 /* ===============================================================
@@ -2134,31 +2136,26 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
 .f-cover.has-photo {
     overflow: hidden;
     color: #fff;
-}
-.f-cover.has-photo::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg,
-        rgba(10, 14, 30, 0.48) 0%,
-        rgba(10, 14, 30, 0.14) 38%,
-        rgba(10, 14, 30, 0.68) 100%);
-    z-index: 2;
-    pointer-events: none;
-    border-radius: inherit;
+    border-color: transparent;
 }
 .f-cover.has-photo .f-cover-num,
 .f-cover.has-photo .f-cover-tag,
 .f-cover.has-photo .pv-mark {
+    position: relative;
     z-index: 3;
     color: #fff;
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.55),
+        0 2px 14px rgba(0, 0, 0, 0.45);
 }
 .f-cover.has-photo .f-cover-tag {
     border-color: rgba(255, 255, 255, 0.85);
+    background: rgba(15, 15, 14, 0.28);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 .f-cover.has-photo .pv-mark {
     opacity: 0.95;
-    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
 }
 
 /* Career cover that shows a real photo (C02) */
@@ -2174,22 +2171,26 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
     height: 100%;
     object-fit: cover;
     z-index: 0;
+    border-radius: inherit;
 }
-.f-cover.f-cover-photo::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-        linear-gradient(180deg, rgba(10, 14, 30, 0.35) 0%, rgba(10, 14, 30, 0.12) 40%, rgba(10, 14, 30, 0.72) 100%);
-    z-index: 1;
+.f-cover.f-cover-photo {
+    border-color: transparent;
 }
 .f-cover.f-cover-photo .f-cover-num,
 .f-cover.f-cover-photo .f-cover-tag {
     position: relative;
     z-index: 2;
     color: #fff;
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.55),
+        0 2px 14px rgba(0, 0, 0, 0.45);
 }
-.f-cover.f-cover-photo .f-cover-tag { border-color: rgba(255, 255, 255, 0.85); }
+.f-cover.f-cover-photo .f-cover-tag {
+    border-color: rgba(255, 255, 255, 0.85);
+    background: rgba(15, 15, 14, 0.28);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
 
 .port-file {
     display: inline-flex;
