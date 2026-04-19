@@ -2177,6 +2177,13 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
         0 1px 2px rgba(0, 0, 0, 0.55),
         0 2px 14px rgba(0, 0, 0, 0.45);
 }
+/* Hide the large serif number (C01 / P03 …) when a real photo is
+   behind it — the tag pill alone carries the label, so the image
+   reads cleaner. */
+.f-cover.has-photo .f-cover-num,
+.f-case-port .f-cover:has(.port-photo:not([src=""])) .f-cover-num {
+    display: none;
+}
 .f-cover.has-photo .f-cover-num {
     margin: 28px 28px 0;
 }

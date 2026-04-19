@@ -179,6 +179,60 @@
             [data-tool-slot="true"]:hover .edit-file-remove {
                 display: flex;
             }
+            [data-tool-pill-slot="true"] {
+                position: relative;
+            }
+            [data-tool-pill-slot="true"]:hover {
+                outline: 2px dashed rgba(29, 78, 216, 0.55);
+                outline-offset: 2px;
+            }
+            [data-tool-pill-slot="true"]:hover .edit-file-remove {
+                display: flex;
+            }
+            .edit-tool-add {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 4px 10px;
+                border-radius: 99px;
+                border: 1px dashed rgba(29, 78, 216, 0.55);
+                background: transparent;
+                color: #1D4ED8;
+                font-family: "JetBrains Mono", ui-monospace, monospace;
+                font-size: 11px;
+                letter-spacing: 0.04em;
+                cursor: pointer;
+            }
+            .edit-tool-add:hover {
+                background: rgba(29, 78, 216, 0.08);
+            }
+            .edit-drag-handle {
+                position: absolute;
+                top: -10px;
+                left: -10px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #1D4ED8;
+                color: #fff;
+                border: 2px solid #fff;
+                font-size: 11px;
+                line-height: 1;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                cursor: move;
+                z-index: 6;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+                user-select: none;
+            }
+            [data-drag-movable="true"]:hover .edit-drag-handle,
+            .edit-drag-handle:hover {
+                display: flex;
+            }
+            [data-drag-movable="true"] {
+                position: relative;
+            }
             .edit-file-remove {
                 position: absolute;
                 top: -9px;
@@ -442,6 +496,101 @@
             });
             el.appendChild(rm);
         });
+
+        /* Inline tool pills (.f-tools > .f-tool-pill): delete each + add new. */
+        const attachPillRemove = (pill) => {
+            if (pill.querySelector(":scope > .edit-file-remove")) return;
+            pill.setAttribute("data-tool-pill-slot", "true");
+            const rm = document.createElement("span");
+            rm.className = "edit-file-remove";
+            rm.setAttribute("data-edit-ornament", "true");
+            rm.setAttribute("role", "button");
+            rm.setAttribute("aria-label", "이 툴 pill 삭제");
+            rm.title = "이 툴 pill 삭제";
+            rm.textContent = "×";
+            rm.addEventListener("click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!confirm("이 툴 항목을 삭제하시겠습니까?")) return;
+                pill.remove();
+            });
+            pill.appendChild(rm);
+        };
+        document.querySelectorAll(".f-tools").forEach((container) => {
+            if (container.closest("#edit-toolbar")) return;
+            container.querySelectorAll(".f-tool-pill").forEach(attachPillRemove);
+            if (!container.querySelector(":scope > .edit-tool-add")) {
+                const add = document.createElement("button");
+                add.type = "button";
+                add.className = "edit-tool-add";
+                add.setAttribute("data-edit-ornament", "true");
+                add.textContent = "+ 툴 추가";
+                add.title = "새 툴 항목 추가";
+                add.addEventListener("click", (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    const name = prompt("툴 이름을 입력하세요 (예: Figma)");
+                    if (!name || !name.trim()) return;
+                    const pill = document.createElement("span");
+                    pill.className = "f-tool-pill";
+                    pill.textContent = name.trim();
+                    container.insertBefore(pill, add);
+                    attachPillRemove(pill);
+                });
+                container.appendChild(add);
+            }
+        });
+
+        /* f-cover-tag drag: attach a small handle that repositions the pill
+           as position:absolute inside the cover. Preserves contenteditable
+           on the tag itself — only the handle initiates drag. */
+        let dragState = null;
+        document.querySelectorAll(".f-cover .f-cover-tag").forEach((tag) => {
+            if (tag.closest("#edit-toolbar")) return;
+            if (tag.querySelector(":scope > .edit-drag-handle")) return;
+            tag.setAttribute("data-drag-movable", "true");
+            const handle = document.createElement("span");
+            handle.className = "edit-drag-handle";
+            handle.setAttribute("data-edit-ornament", "true");
+            handle.setAttribute("role", "button");
+            handle.title = "드래그로 위치 이동";
+            handle.textContent = "⇕";
+            handle.addEventListener("mousedown", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const cover = tag.closest(".f-cover");
+                if (!cover) return;
+                const coverRect = cover.getBoundingClientRect();
+                const tagRect = tag.getBoundingClientRect();
+                /* Pin the tag to absolute coords inside the cover so further
+                   mousemove updates left/top instead of flowing with flex. */
+                tag.style.position = "absolute";
+                tag.style.margin = "0";
+                tag.style.alignSelf = "auto";
+                tag.style.left = (tagRect.left - coverRect.left) + "px";
+                tag.style.top = (tagRect.top - coverRect.top) + "px";
+                dragState = {
+                    tag,
+                    cover,
+                    coverRect,
+                    offsetX: ev.clientX - tagRect.left,
+                    offsetY: ev.clientY - tagRect.top
+                };
+            });
+            tag.appendChild(handle);
+        });
+        document.addEventListener("mousemove", (ev) => {
+            if (!dragState) return;
+            const { tag, coverRect, offsetX, offsetY } = dragState;
+            const tagRect = tag.getBoundingClientRect();
+            let x = ev.clientX - coverRect.left - offsetX;
+            let y = ev.clientY - coverRect.top - offsetY;
+            x = Math.max(0, Math.min(x, coverRect.width - tagRect.width));
+            y = Math.max(0, Math.min(y, coverRect.height - tagRect.height));
+            tag.style.left = x + "px";
+            tag.style.top = y + "px";
+        });
+        document.addEventListener("mouseup", () => { dragState = null; });
     };
 
     /* =====================================================================
@@ -956,6 +1105,12 @@
         });
         clone.querySelectorAll("[data-tool-slot]").forEach((el) => {
             el.removeAttribute("data-tool-slot");
+        });
+        clone.querySelectorAll("[data-tool-pill-slot]").forEach((el) => {
+            el.removeAttribute("data-tool-pill-slot");
+        });
+        clone.querySelectorAll("[data-drag-movable]").forEach((el) => {
+            el.removeAttribute("data-drag-movable");
         });
         /* Remove any edit-only ornaments (×, badges) injected into slots. */
         clone.querySelectorAll("[data-edit-ornament]").forEach((el) => {
