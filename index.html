@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hyunjin Jung · Portfolio 2026</title>
+    <meta name="description" content="Scenario Designer · Hyunjin Jung" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500&display=swap"
+          rel="stylesheet" />
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- =========================================================
+         TOP BAR · macOS Finder window chrome (single row)
+         left  · traffic lights + proxy folder title
+         right · section tabs (Cover — Portfolio)
+         ========================================================= -->
+    <header class="topbar mac-window" id="topbar">
+        <div class="topbar-inner">
+            <div class="mac-chrome-left">
+                <div class="mac-lights" aria-hidden="true">
+                    <span class="mac-light mac-light-close"></span>
+                    <span class="mac-light mac-light-min"></span>
+                    <span class="mac-light mac-light-max"></span>
+                </div>
+                <a href="#cover" class="mac-proxy" aria-label="Hyunjin Jung Portfolio 2026">
+                    <span class="mac-proxy-icon" aria-hidden="true">
+                        <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2.5 6a1.5 1.5 0 0 1 1.5-1.5h3.3l1.7 1.7H16a1.5 1.5 0 0 1 1.5 1.5v6.8A1.5 1.5 0 0 1 16 16H4a1.5 1.5 0 0 1-1.5-1.5V6z"/>
+                        </svg>
+                    </span>
+                    <span class="mac-proxy-title">Hyunjin Jung — Portfolio 2026</span>
+                </a>
+            </div>
+
+            <nav class="folders" role="tablist">
+                <a href="#cover"     class="folder is-active">Cover</a>
+                <a href="#letter"    class="folder">Letter</a>
+                <a href="#resume"    class="folder">Resume</a>
+                <a href="#career"    class="folder">Career</a>
+                <a href="#essay"     class="folder">Essay</a>
+                <a href="#portfolio" class="folder">Portfolio</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- =========================================================
+         SCROLL RAIL · right side
+         ========================================================= -->
+    <aside class="rail" id="rail" aria-hidden="true">
+        <div class="rail-track">
+            <div class="rail-fill" id="railFill"></div>
+            <a href="#cover"     class="rail-mark is-active" data-id="cover"><span class="mark-dot"></span><span class="mark-label">Cover</span></a>
+            <a href="#letter"    class="rail-mark" data-id="letter"><span class="mark-dot"></span><span class="mark-label">Letter</span></a>
+            <a href="#resume"    class="rail-mark" data-id="resume"><span class="mark-dot"></span><span class="mark-label">Resume</span></a>
+            <a href="#career"    class="rail-mark" data-id="career"><span class="mark-dot"></span><span class="mark-label">Career</span></a>
+            <a href="#essay"     class="rail-mark" data-id="essay"><span class="mark-dot"></span><span class="mark-label">Essay</span></a>
+            <a href="#portfolio" class="rail-mark" data-id="portfolio"><span class="mark-dot"></span><span class="mark-label">Portfolio</span></a>
+        </div>
+        <div class="rail-meter">
+            <span id="railPct">00</span><em>%</em>
+        </div>
+    </aside>
+
+    <main class="deck">
+
+        <!-- =========================================================
+             01 — COVER
+             ========================================================= -->
+        <section class="slide slide-cover" id="cover">
+            <div class="cover-top">
+                <span class="eyebrow">Cover</span>
+                <span class="eyebrow-r">PORTFOLIO 2026 · SCENARIO DESIGNER</span>
+            </div>
+
+            <div class="cover-grid">
+                <div class="cover-type">
+                    <p class="cover-intro">— Hi, I'm</p>
+                    <h1 class="cover-name">
+                        <span>Hyunjin</span>
+                        <span class="italic">Jung.</span>
+                    </h1>
+                    <p class="cover-role">
+                        <span class="r-to">Scenario Designer</span>
+                    </p>
+                </div>
+
+                <figure class="cover-portrait">
+                    <div class="portrait-frame">
+                        <span class="portrait-initial">H</span>
+                    </div>
+                    <blockquote class="cover-hero">
+                        <span class="cover-hero-mark cover-hero-mark-open">“</span>
+                        <p>
+                            문장 한 줄이 플레이어의 <em>다음 선택</em>을 바꿉니다.<br />
+                            <em>그 한 줄을 설계하는 일</em>을 합니다.
+                        </p>
+                        <span class="cover-hero-mark cover-hero-mark-close">”</span>
+                    </blockquote>
+                </figure>
+            </div>
+
+        </section>
+
+        <!-- =========================================================
+             02 — COVER LETTER (brief · letter format)
+             ========================================================= -->
+        <section class="slide slide-letter" id="letter">
+            <header class="slide-head slide-head-nonum">
+                <div>
+                    <span class="slide-kind">Cover Letter</span>
+                    <h2 class="slide-h">
+                        <em>첫 인사</em>를 드립니다.
+                    </h2>
+                    <p class="slide-sub">Hyunjin Jung · 2026 Portfolio</p>
+                </div>
+            </header>
+
+            <article class="cover-letter">
+                <p class="cl-salute">
+                    To. <strong>채용 담당자님께</strong>
+                </p>
+
+                <p class="cl-lead">
+                    안녕하세요. <em>정현진</em>입니다.
+                </p>
+
+                <p>
+                    저는 <strong>문장 단위에서 이야기를 설계하고 끝까지 책임져 본
+                    사람</strong>입니다. 지난 5년 동안 월 100만 뷰 콘텐츠를
+                    <em>117% 기획 달성률</em>로 운영했고, 고양이 웹툰 「고동툰」
+                    29~56화 28편을 직접 기획·각본했으며, 독립출판 『기차, 하다』를
+                    4인 팀으로 기획부터 유통까지 완결했습니다. 정서의 호흡을 한 편
+                    안에서 닫는 훈련을 매주 마감과 함께 쌓아왔습니다.
+                </p>
+
+                <p>
+                    이 훈련의 방향이 <em>시나리오 기획</em>과 맞닿아 있다고
+                    판단했습니다. 캐릭터의 대사 톤을 고르는 일, 분기마다 정서의
+                    무게를 계산하는 일, 마감과 품질을 함께 지키는 일 — 제가 이미
+                    현업에서 숙련한 감각을 <em>플레이어의 선택과 맞물리는 구조</em>
+                    안에서 다시 꺼내고자 합니다.
+                </p>
+
+                <p>
+                    신입으로 배울 것이 많다는 사실을 분명히 알고 있습니다. 그래서
+                    <em>빠르게 흡수하고 정확하게 마감하는 사람</em>이 되겠습니다.
+                    받은 자리의 몫을 문장 한 줄, 기획서 한 장 단위로 증명해 나가는
+                    일. 제가 드릴 수 있는 가장 분명한 약속입니다.
+                </p>
+
+                <p>
+                    이 포트폴리오는 그 근거를 한데 모은 기록입니다. 이어지는 페이지에
+                    <em>이력서 · 커리어 · 자기소개서 · 시나리오 샘플 4편</em>을
+                    담았습니다. 읽어주시는 시간만큼의 설득을 문장 안에 담고자
+                    했습니다.
+                </p>
+
+                <p>
+                    귀한 시간 내어 주셔서 감사드립니다.
+                </p>
+
+                <p class="cl-sign">
+                    From. <span class="italic">정현진 드림</span>
+                </p>
+            </article>
+        </section>
+
+        <!-- =========================================================
+             03 — RESUME
+             ========================================================= -->
+        <section class="slide slide-resume" id="resume">
+            <header class="slide-head">
+                <span class="slide-num">01</span>
+                <div>
+                    <span class="slide-kind">Resume · 이력서</span>
+                    <h2 class="slide-h">
+                        한 장에 정리한 <em>정현진</em>.
+                    </h2>
+                    <p class="slide-sub">스킬 · 언어 · 자격 · 도구</p>
+                </div>
+            </header>
+
+            <div class="rs-layout">
+                <aside class="rs-profile">
+                    <div class="rs-portrait">
+                        <span>H</span>
+                    </div>
+                    <h3 class="rs-name">
+                        정현진
+                        <em>Hyunjin Jung</em>
+                    </h3>
+                    <p class="rs-title">Scenario Designer · 시나리오 기획자</p>
+
+                    <ul class="rs-basic">
+                        <li>
+                            <span class="rs-ic" aria-label="생년">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 20h18" />
+                                    <path d="M4 20v-8a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v8" />
+                                    <path d="M4 14c2 1 3 1 4 0s2-1 4 0 3 1 4 0 2-1 4 0" />
+                                    <path d="M9 6V4m3 2V3m3 3V4" />
+                                </svg>
+                            </span>
+                            <span class="rs-val">1998</span>
+                        </li>
+                        <li>
+                            <span class="rs-ic" aria-label="연락">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 2 .6 2.9a2 2 0 0 1-.5 2.1L7.9 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.9.5 2.9.6a2 2 0 0 1 1.8 2z" />
+                                </svg>
+                            </span>
+                            <span class="rs-val">010-5468-7269</span>
+                        </li>
+                        <li>
+                            <span class="rs-ic" aria-label="메일">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                                    <path d="M3 7l9 6 9-6" />
+                                </svg>
+                            </span>
+                            <span class="rs-val"><a href="mailto:hevem@naver.com" class="link">hevem@naver.com</a></span>
+                        </li>
+                    </ul>
+                </aside>
+
+                <div class="rs-detail">
+                    <section class="rs-block">
+                        <h4>Skills</h4>
+                        <ul class="rings">
+                            <li class="ring-item">
+                                <div class="ring" data-w="95"><span class="ring-pct">95<em>%</em></span></div>
+                                <span class="ring-name">콘텐츠 기획 · 에디팅</span>
+                            </li>
+                            <li class="ring-item">
+                                <div class="ring" data-w="92"><span class="ring-pct">92<em>%</em></span></div>
+                                <span class="ring-name">스토리텔링 · 내러티브</span>
+                            </li>
+                            <li class="ring-item">
+                                <div class="ring" data-w="88"><span class="ring-pct">88<em>%</em></span></div>
+                                <span class="ring-name">정보 · 구조 설계</span>
+                            </li>
+                            <li class="ring-item">
+                                <div class="ring" data-w="80"><span class="ring-pct">80<em>%</em></span></div>
+                                <span class="ring-name">SEO · GA 데이터</span>
+                            </li>
+                            <li class="ring-item">
+                                <div class="ring" data-w="78"><span class="ring-pct">78<em>%</em></span></div>
+                                <span class="ring-name">일본어 (JLPT N2)</span>
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section class="rs-block rs-grid2">
+                        <div>
+                            <h4>Education</h4>
+                            <ul class="rs-edu">
+                                <li>
+                                    <span class="edu-year">2025 — 2026</span>
+                                    <div>
+                                        <strong>백석예술대학교</strong>
+                                        <em>학점은행제 · 입학 및 졸업</em>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="edu-year">2017 — 2021</span>
+                                    <div>
+                                        <strong>서울예술대학교</strong>
+                                        <em>입학 및 졸업</em>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="edu-year">2017</span>
+                                    <div>
+                                        <strong>고등학교 졸업</strong>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4>Certificates &amp; Languages</h4>
+                            <ul class="rs-list rs-list-compact">
+                                <li><span>2026</span>JLPT N2</li>
+                                <li><span>KO</span>한국어 · 모국어</li>
+                                <li><span>JP</span>일본어 · 상급</li>
+                                <li><span>EN</span>영어 · 일상 독해</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section class="rs-block">
+                        <h4>Tools</h4>
+                        <div class="tools-grid">
+                            <div class="tool">
+                                <span class="tool-icon"><img src="https://cdn.simpleicons.org/notion/0f0f0e" alt="Notion" /></span>
+                                <span>Notion</span>
+                            </div>
+                            <div class="tool">
+                                <span class="tool-icon tool-icon-id" aria-label="InDesign">Id</span>
+                                <span>InDesign</span>
+                            </div>
+                            <div class="tool">
+                                <span class="tool-icon tool-icon-ps" aria-label="Photoshop">Ps</span>
+                                <span>Photoshop</span>
+                            </div>
+                            <div class="tool">
+                                <span class="tool-icon tool-icon-w" aria-label="Word">W</span>
+                                <span>Word</span>
+                            </div>
+                            <div class="tool">
+                                <span class="tool-icon tool-icon-x" aria-label="Excel">X</span>
+                                <span>Excel</span>
+                            </div>
+                            <div class="tool">
+                                <span class="tool-icon tool-icon-pp" aria-label="PowerPoint">P</span>
+                                <span>PowerPoint</span>
+                            </div>
+                            <div class="tool">
+                                <span class="tool-icon"><img src="https://cdn.simpleicons.org/googleanalytics/E37400" alt="Google Analytics" /></span>
+                                <span>Analytics</span>
+                            </div>
+                            <div class="tool">
+                                <span class="tool-icon"><img src="https://cdn.simpleicons.org/naver/03C75A" alt="Naver" /></span>
+                                <span>Naver SEO</span>
+                            </div>
+                        </div>
+
+                        <div class="tools-learning">
+                            <span class="tools-learning-label">Learning</span>
+                            <div class="tools-learning-items">
+                                <span class="tool-chip">
+                                    <span class="tool-chip-ic tool-chip-unity" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 3.2 5.6 6.9v7.4L12 18l6.4-3.7V6.9L12 3.2zm0 1.7 5.2 3v5.2L12 16l-5.2-3v-5.2l5.2-3z"/></svg>
+                                    </span>
+                                    <span>Unity</span>
+                                </span>
+                                <span class="tool-chip">
+                                    <span class="tool-chip-ic tool-chip-fr" aria-hidden="true">Fr</span>
+                                    <span>프랑스어</span>
+                                </span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             04 — CAREER · 경력과 대표 프로젝트 (reverse-chrono)
+             Clickable cards — hover lift · new tab
+             ========================================================= -->
+        <section class="slide slide-career" id="career">
+            <header class="slide-head">
+                <span class="slide-num">02</span>
+                <div>
+                    <span class="slide-kind">Career · 여정과 작업물</span>
+                    <h2 class="slide-h">
+                        편집자에서 <em>기획자</em>로의 여정.
+                    </h2>
+                    <p class="slide-sub">최신 연도순 · 링크가 연결된 카드는 클릭 시 관련 자료가 새 탭에서 열립니다</p>
+                </div>
+            </header>
+
+            <div class="featured">
+                <!-- C01 · 갤럭틱엔터테인먼트 2025 -->
+                <div class="f-case">
+                    <div class="f-cover f-cover-4">
+                        <div class="f-cover-num">C01</div>
+                        <div class="f-cover-tag">Monitoring · 2025</div>
+                    </div>
+                    <div class="f-info">
+                        <span class="f-date">2025</span>
+                        <h3>갤럭틱엔터테인먼트 · 요원</h3>
+                        <p>
+                            <em>한국소비자원과 협력하는 모니터링 요원</em>으로, 드라마·영화
+                            등 영상 콘텐츠의 <em>불법 유통과 불법 OTT 감상 기기</em>를
+                            감시·보고하는 업무를 담당했습니다. 창작물이 시장에서 어떻게
+                            소비되고 어떻게 침해되는지를 가장 가까이에서 관찰한 시간이었고,
+                            이후 이야기를 '만드는' 일에 대한 책임감을 더 분명하게 만들어
+                            준 경험입니다.
+                        </p>
+
+                        <div class="f-detail">
+                            <div class="f-detail-block">
+                                <span class="f-dt">Role</span>
+                                <p>불법 콘텐츠 모니터링 · 불법 OTT 기기 감시 · 보고서 작성 · 소비자원 협력</p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">Focus</span>
+                                <p>콘텐츠 유통 생태를 현장 관점에서 이해 — 창작자의 권리와 수용자의 선택을 함께 보는 감각</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- C02 · 비마이펫 2022-2023 (고동툰 통합) -->
+                <div class="f-case reverse">
+                    <div class="f-cover f-cover-2 f-cover-photo">
+                        <img class="f-cover-photo-img" src="https://picsum.photos/seed/bemypet-desk/1000/750" alt="" loading="lazy" />
+                        <div class="f-cover-num">C02</div>
+                        <div class="f-cover-tag">Editor + Webtoon Writer</div>
+                    </div>
+                    <div class="f-info">
+                        <span class="f-date">2022 — 2023</span>
+                        <h3>비마이펫 · 콘텐츠 에디터</h3>
+                        <p>
+                            콘텐츠 캘린더 기획·운영, 카피·본문 라이팅, 이미지 디렉션,
+                            GA 기반 성과 분석과 리뉴얼까지. 월 100만+ 뷰 콘텐츠를
+                            안정적으로 운영하며 <em>읽는 사람의 경험 동선을 문장 단위에서
+                            설계하는 감각</em>을 실전으로 단련했습니다.
+                        </p>
+
+                        <div class="f-detail">
+                            <div class="f-detail-block">
+                                <span class="f-dt">Role</span>
+                                <p>콘텐츠 기획·운영 · 본문 라이팅 · 이미지 디렉션 · GA 분석 · 리뉴얼 주도</p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">Result</span>
+                                <ul class="f-results">
+                                    <li><strong>100만+</strong><span>월 조회수</span></li>
+                                    <li><strong>117%</strong><span>기획 달성</span></li>
+                                    <li><strong>+30%</strong><span>SEO 유입</span></li>
+                                    <li><strong>×2.5</strong><span>체류 시간</span></li>
+                                </ul>
+                            </div>
+
+                            <!-- Sub-project 1 · 고동툰 (재직 중 진행한 웹툰 기획/각본) -->
+                            <div class="f-sub">
+                                <div class="f-sub-head">
+                                    <span class="f-sub-label">Sub-project 01</span>
+                                    <h4 class="f-sub-title">고동툰 · 29화 – 56화 기획 / 각본</h4>
+                                </div>
+                                <p class="f-sub-body">
+                                    사내 고양이 웹툰 「고동툰」의 <strong>28편을 직접 기획하고
+                                    각본</strong>했습니다. 에피소드마다 글 초안부터 컷 구성·대사까지
+                                    스스로 설계하고, 작화팀과 협업해 <em>한 편 안에서 정서의
+                                    흐름을 닫는 구성</em>을 연재 호흡으로 훈련했습니다. 시나리오
+                                    디자인에 가장 직접적으로 이어지는 실무 경험입니다.
+                                </p>
+                                <div class="f-sub-meta">
+                                    <span class="f-sub-meta-k">Role</span>
+                                    <span>에피소드 기획 · 글 초안 집필 · 컷·대사 구성 · 작가 커뮤니케이션 · 28화 연재 발행</span>
+                                </div>
+                                <a class="f-sub-link f-sub-link-below" href="https://creators.mypetlife.co.kr/series/catwebtoon/page/2/" target="_blank" rel="noopener">시리즈 보기 <b>↗</b></a>
+                            </div>
+
+                            <!-- Sub-project 2 · 콘텐츠 캘린더 운영 -->
+                            <div class="f-sub">
+                                <div class="f-sub-head">
+                                    <span class="f-sub-label">Sub-project 02</span>
+                                    <h4 class="f-sub-title">콘텐츠 캘린더 · 월 단위 기획 운영</h4>
+                                </div>
+                                <p class="f-sub-body">
+                                    월 단위 콘텐츠 캘린더를 주도해 주제 선정·작가 브리프·발행
+                                    일정까지 일관된 호흡으로 운영했습니다. <strong>월 100만+ 뷰</strong>
+                                    볼륨을 <em>117% 기획 달성률</em>로 안정적으로 유지하며,
+                                    '큰 덩어리를 쪼개 우선순위를 부여하는' 구조적 사고를 실무에서
+                                    단련했습니다.
+                                </p>
+                                <div class="f-sub-meta">
+                                    <span class="f-sub-meta-k">Role</span>
+                                    <span>월간 캘린더 기획 · 주제 선정 · 작가 브리프 · 발행 관리 · 본문 라이팅</span>
+                                </div>
+                            </div>
+
+                            <!-- Sub-project 3 · 리뉴얼 주도 -->
+                            <div class="f-sub">
+                                <div class="f-sub-head">
+                                    <span class="f-sub-label">Sub-project 03</span>
+                                    <h4 class="f-sub-title">콘텐츠 리뉴얼 · GA 기반 구조 개편</h4>
+                                </div>
+                                <p class="f-sub-body">
+                                    Google Analytics로 이탈 지점과 체류 병목을 짚어 상세 페이지의
+                                    정보 구조·카피·이미지 배치를 리뉴얼했습니다. 그 결과
+                                    <strong>SEO 유입 +30%</strong>, <strong>체류 시간 2.5배</strong>를
+                                    달성했고, <em>데이터로 독자를 읽고 문장 단위에서 동선을 다시
+                                    짜는 감각</em>을 실전으로 확보했습니다.
+                                </p>
+                                <div class="f-sub-meta">
+                                    <span class="f-sub-meta-k">Role</span>
+                                    <span>GA 분석 · 페이지 IA 재설계 · SEO 최적화 · 카피·이미지 디렉션 · 리뉴얼 주도</span>
+                                </div>
+                            </div>
+
+                            <div class="f-detail-block">
+                                <span class="f-dt">Tools</span>
+                                <div class="f-tools">
+                                    <span class="f-tool-pill"><img src="https://cdn.simpleicons.org/googleanalytics/E37400" alt="" />Analytics</span>
+                                    <span class="f-tool-pill"><img src="https://cdn.simpleicons.org/naver/03C75A" alt="" />Naver SEO</span>
+                                    <span class="f-tool-pill"><img src="https://cdn.simpleicons.org/notion/0f0f0e" alt="" />Notion</span>
+                                    <span class="f-tool-pill"><img src="https://cdn.simpleicons.org/googledocs/4285F4" alt="" />Docs</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-ps">Ps</span>Photoshop</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-ai">Ai</span>Illustrator</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-w">W</span>Word</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-hwp">한</span>한글</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a class="cc-link cc-link-only" href="https://mypetlife.co.kr/author/hj-jung/" target="_blank" rel="noopener">mypetlife.co.kr · HJ Jung 아카이브 <b>↗</b></a>
+                    </div>
+                </div>
+
+                <!-- C03 · 에스콤 정보시스템 2021 -->
+                <div class="f-case">
+                    <div class="f-cover f-cover-3">
+                        <div class="f-cover-num">C03</div>
+                        <div class="f-cover-tag">편집 · Editing</div>
+                    </div>
+                    <div class="f-info">
+                        <span class="f-date">2021</span>
+                        <h3>에스콤 정보시스템 · 편집자</h3>
+                        <p>
+                            한국어 논문의 편집과 감수를 담당했습니다. 원고를 단행본의
+                            호흡에 맞게 다듬고, 표·각주·참고문헌까지 일관된 체계로
+                            정돈하는 과정에서 <em>학술 텍스트를 독자 경험으로 번역하는
+                            감각</em>을 익혔습니다.
+                        </p>
+
+                        <div class="f-detail">
+                            <div class="f-detail-block">
+                                <span class="f-dt">Role</span>
+                                <p>한국어 논문 편집 · 감수 · 표·각주·참고문헌 정비 · 레이아웃 감리</p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">Result</span>
+                                <ul class="f-results">
+                                    <li><strong>KO</strong><span>논문 편집</span></li>
+                                    <li><strong>체계화</strong><span>각주·참고문헌</span></li>
+                                    <li><strong>단행본</strong><span>출간 감리</span></li>
+                                </ul>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">Tools</span>
+                                <div class="f-tools">
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-id">Id</span>InDesign</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-ps">Ps</span>Photoshop</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-pdf">PDF</span>PDF</span>
+                                    <span class="f-tool-pill"><img src="https://cdn.simpleicons.org/googledocs/4285F4" alt="" />Docs</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-hwp">한</span>한글</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- C04 · 독립출판 『기차, 하다』 2020.09-12 -->
+                <div class="f-case reverse">
+                    <div class="f-cover f-cover-1">
+                        <div class="f-cover-num">C04</div>
+                        <div class="f-cover-tag">독립출판 · Team Publishing</div>
+                    </div>
+                    <div class="f-info">
+                        <span class="f-date">2020.09 — 2020.12</span>
+                        <h3>독립출판 『기차, 하다』</h3>
+                        <p>
+                            4인 팀으로 기획·편집·디자인·인쇄·유통까지 함께 완결한 프로젝트.
+                            주제를 함께 좁히고 서로의 원고를 교차 편집하며
+                            <em>협업을 통해 한 권의 책이 완성되는 공정</em>을 경험했습니다.
+                        </p>
+
+                        <div class="f-detail">
+                            <div class="f-detail-block">
+                                <span class="f-dt">Role</span>
+                                <p>공동 기획 · 원고 작성 · 교차 편집 · 디자인 · 인쇄 감리 · 유통 (4인 팀)</p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">Result</span>
+                                <ul class="f-results">
+                                    <li><strong>1</strong><span>단행본 완성</span></li>
+                                    <li><strong>4개월</strong><span>팀 완결</span></li>
+                                    <li><strong>4인</strong><span>공동 체제</span></li>
+                                    <li><strong>텀블벅</strong><span>크라우드펀딩</span></li>
+                                </ul>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">Tools</span>
+                                <div class="f-tools">
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-id">Id</span>InDesign</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-ps">Ps</span>Photoshop</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-hwp">한</span>한글</span>
+                                    <span class="f-tool-pill"><img src="https://cdn.simpleicons.org/googledocs/4285F4" alt="" />Docs</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a class="cc-link cc-link-only" href="https://tumblbug.com/wintertrain?ref=%EA%B2%80%EC%83%89%2F%ED%82%A4%EC%9B%8C%EB%93%9C" target="_blank" rel="noopener">Tumblbug 프로젝트 보기 <b>↗</b></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             05 — ESSAY · 자기소개서 (지원동기 · 장단점 · 포부)
+             ========================================================= -->
+        <section class="slide slide-essay" id="essay">
+            <header class="slide-head">
+                <span class="slide-num">03</span>
+                <div>
+                    <span class="slide-kind">Essay · 자기소개서</span>
+                    <h2 class="slide-h">
+                        이야기를 <em>편집</em>하던 사람이<br />
+                        이야기를 <em>설계</em>합니다.
+                    </h2>
+                    <p class="slide-sub">지원동기 · 장단점 · 입사 후 포부</p>
+                </div>
+            </header>
+
+            <div class="letter-stack">
+                <article class="letter-block">
+                    <div class="letter-num">
+                        <span>01</span>
+                        <em>지원동기</em>
+                    </div>
+                    <div class="letter-body">
+                        <p class="letter-lead">
+                            제가 <em>시나리오 기획자</em>로 이 팀에 지원하는 이유는
+                            분명합니다. 이곳의 작품이 저에게 남긴 질문이, 지난 5년 동안
+                            제가 훈련해 온 답과 같은 자리에 놓여 있기 때문입니다.
+                        </p>
+                        <p>
+                            인상 깊었던 것은 서사의 완성도가 아니라, 선택지가 '분기의
+                            장치'가 아니라 <em>'캐릭터를 이해하는 통로'</em>로 작동한다는
+                            점이었습니다. 정서의 흐름이 분기를 따라 자연스럽게 이어지고,
+                            엔딩 이후에도 세계관이 살아 움직이는 감각 — 이 팀이 서사를
+                            다루는 방식이, 제가 "읽는 사람의 감정 동선을 문장 단위에서
+                            설계한다"는 방법론으로 쌓아온 훈련과 같은 방향을 바라보고
+                            있다고 판단했습니다.
+                        </p>
+                        <p>
+                            저는 비마이펫에서 월 100만 뷰 콘텐츠를
+                            <em>117% 기획 달성률</em>로 운영했고, 고양이 웹툰 「고동툰」
+                            29~56화 <em>28편을 직접 기획·각본</em>했습니다.
+                            독립출판 『기차, 하다』를 4인 팀으로 완결하며 서로 다른
+                            톤의 사람들을 <em>하나의 결로 수렴시키는 협업</em>도
+                            경험했습니다. 이 훈련은 대사 톤을 고르는 일, 분기마다
+                            정서의 무게를 계산하는 일, 마감과 품질을 함께 지키는
+                            일로 그대로 이어진다고 확신합니다.
+                        </p>
+                        <p>
+                            에디터로서의 경력은 장식이 아니라 출발선입니다. 저는
+                            이야기를 읽어내는 훈련을 가장 밀도 있게 받아 온 신입이고,
+                            그 감각을 <em>플레이어 반응을 읽고 대사·선택지·분기를
+                            튜닝하는 일</em>에 그대로 옮길 준비가 돼 있습니다.
+                        </p>
+                        <p>
+                            이력서를 보내는 자리가 많았지만, 이 팀만큼 제 다음 5년을
+                            걸고 싶은 곳은 없었습니다. 이곳에서
+                            <em>플레이어의 기억에 남을 한 편</em>을 만드는 일에
+                            제 시간을 쓰겠습니다.
+                        </p>
+                    </div>
+                </article>
+
+                <article class="letter-block">
+                    <div class="letter-num">
+                        <span>02</span>
+                        <em>성격의 장단점</em>
+                    </div>
+                    <div class="letter-body">
+                        <h4 class="mini-head">Strength · 무기</h4>
+                        <ol class="points">
+                            <li>
+                                <strong>구조적 사고.</strong>
+                                월 단위 콘텐츠 캘린더에서 <em>117% 기획 달성률</em>을
+                                지킨 경험이 있습니다. 큰 덩어리를 쪼개고, 우선순위를
+                                부여하고, 리소스를 배분하는 일에 훈련돼 있습니다.
+                            </li>
+                            <li>
+                                <strong>완결성.</strong>
+                                독립출판 『기차, 하다』를 <em>4인 팀</em>으로
+                                기획부터 출간까지 끝냈습니다. 서로 다른 감수성의
+                                사람들과 톤을 맞춰 <em>하나의 결과물로 수렴시키는
+                                힘</em>을 검증했습니다.
+                            </li>
+                            <li>
+                                <strong>데이터 감수성.</strong>
+                                GA·SEO 지표로 콘텐츠를 재설계한 경험은 플레이어
+                                피드백에 기반한 <em>대사·분기 튜닝</em>에 그대로
+                                이식됩니다.
+                            </li>
+                        </ol>
+
+                        <h4 class="mini-head">Weakness · 숙제</h4>
+                        <p>
+                            저의 약점은 결과물에 확신이 도달하기까지
+                            <em>혼자 고민하는 시간이 길다</em>는 점입니다. 특히 처음
+                            다루는 장르에서 "내 선택이 맞을까"를 되묻느라 한 걸음을
+                            머뭇거린 적이 있었습니다.
+                        </p>
+                        <p>
+                            지금은 방식을 바꾸고 있습니다.
+                            <em>'80% 단계에서 먼저 꺼내놓고 피드백으로 100%에
+                            도달한다'</em>를 원칙으로, 팀의 시선을 빌려 확신을 보태는
+                            습관을 들이고 있습니다. 독립출판을 끝까지 완결해 본 경험이
+                            가르쳐 준 것은 <em>'일단 내보내는 힘'</em>이 자신감을
+                            만든다는 사실이었고, 그 감각을 매일 조금씩 키우는 중입니다.
+                        </p>
+                        <p>
+                            결국 저의 강점과 약점은 같은 뿌리에서 나옵니다 — 완결까지
+                            책임지려는 태도. 그 책임감이 팀 안에서 어떤 방식으로
+                            작동해야 하는지를, 이곳에서 매일 배워 나가겠습니다.
+                        </p>
+                    </div>
+                </article>
+
+                <article class="letter-block">
+                    <div class="letter-num">
+                        <span>03</span>
+                        <em>입사 후 포부</em>
+                    </div>
+                    <div class="letter-body">
+                        <p class="letter-lead">
+                            저는 <em>받은 자리의 몫을 분명히 해내는 사람</em>이
+                            되겠습니다.
+                        </p>
+                        <p>
+                            <strong>첫 해</strong>에는 이 팀의 세계관과 톤을 가장 빠르게
+                            흡수하는 사람이 되겠습니다. 레퍼런스·빌드·기존 시나리오
+                            문서를 밀도 있게 읽어 팀의 화법을 내 것으로 만들고, 서브
+                            퀘스트와 대사 다듬기 같은
+                            <em>"작지만 결이 흐트러지면 안 되는 일"</em>에서 먼저
+                            신뢰를 얻겠습니다. <em>"이 사람에게 맡기면 톤이 무너지지
+                            않는다"</em> — 이것이 첫 해의 목표입니다.
+                        </p>
+                        <p>
+                            <strong>삼 년 차</strong>에는
+                            <em>메인 에피소드 한 줄기를 책임지는 기획자</em>로 자리
+                            잡겠습니다. 캐릭터의 정서 흐름, 선택지의 분기 설계, 엔딩의
+                            여운까지 — 제 손을 거친 한 편이 플레이어의 기억에 남도록
+                            만들겠습니다. 비마이펫에서 <em>117% 기획 달성률</em>로
+                            익힌 '마감과 품질을 함께 지키는 감각', 독립출판에서 검증한
+                            '협업을 통한 일관된 톤 유지력'을 그대로 가져가겠습니다.
+                        </p>
+                        <p>
+                            <strong>그 이후</strong>에는, 이 팀이 만드는 세계가 게임
+                            안팎으로 확장될 때 <em>"저 사람이 있으면 이야기가 흔들리지
+                            않는다"</em>는 평가를 받는 사람이 되겠습니다. 제가 받을
+                            월급의 값어치를 — 기획서 한 장, 대사 한 줄, 분기 하나
+                            단위에서 — 눈에 보이게 해내는 것. 그것이 제가 드릴 수 있는
+                            가장 분명한 약속입니다.
+                        </p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             04 — PORTFOLIO · 시나리오 기획 샘플 (f-case 레이아웃)
+             ========================================================= -->
+        <section class="slide slide-port" id="portfolio">
+            <header class="slide-head">
+                <span class="slide-num">04</span>
+                <div>
+                    <span class="slide-kind">Portfolio · 시나리오 기획 샘플</span>
+                    <h2 class="slide-h">
+                        자체 <em>시나리오 기획</em> 네 편.
+                    </h2>
+                    <p class="slide-sub">기획 의도 · 게임 형식 · 줄거리 · 활용 툴 · 자료 첨부 (PDF · XLSX · PPT)</p>
+                </div>
+            </header>
+
+            <div class="featured featured-port">
+
+                <!-- P01 · 정류장 -->
+                <div class="f-case f-case-port">
+                    <div class="port-media">
+                        <div class="port-files-strip" aria-label="첨부 자료">
+                            <a class="port-file" href="#" data-file="p01-intent.pdf" aria-label="기획 의도 PDF">
+                                <span class="pf-badge pf-pdf">PDF</span>
+                                <span class="pf-name">기획 의도</span>
+                            </a>
+                            <a class="port-file" href="#" data-file="p01-routes.xlsx" aria-label="분기 표 XLSX">
+                                <span class="pf-badge pf-xlsx">XLSX</span>
+                                <span class="pf-name">분기 표</span>
+                            </a>
+                            <a class="port-file" href="#" data-file="p01-pitch.pptx" aria-label="피칭 덱 PPTX">
+                                <span class="pf-badge pf-pptx">PPT</span>
+                                <span class="pf-name">피칭 덱</span>
+                            </a>
+                        </div>
+                        <div class="f-cover f-cover-port f-cover-2">
+                            <!-- 실제 이미지가 준비되면 아래 img src 값만 채워 넣으면 됩니다 -->
+                            <img class="port-photo" src="" alt="" />
+                            <div class="f-cover-num">P01</div>
+                            <div class="f-cover-tag">Narrative Adventure</div>
+                            <span class="pv-mark">bus,<br />bench</span>
+                        </div>
+                    </div>
+                    <div class="f-info">
+                        <span class="f-date">Scenario Sample · 2D 내러티브 어드벤처</span>
+                        <h3>정류장, 네 번째 벤치</h3>
+                        <p class="port-tag-inline">
+                            "마지막으로 본 얼굴은, 다음 버스가 가려준다."
+                        </p>
+
+                        <div class="f-detail">
+                            <div class="f-detail-block">
+                                <span class="f-dt">기획 의도</span>
+                                <p>
+                                    놓친 사람을 다시 만나고 싶은 마음과, 그 마음을 놓아주는
+                                    순간 사이의 <em>아주 짧은 망설임</em>을 플레이어의 선택으로
+                                    만들고 싶었습니다. '이야기에 개입한다'는 감각을 처음
+                                    접하는 사람에게도 부담 없이 열리도록 설계했습니다.
+                                </p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">게임 형식</span>
+                                <p>2D 내러티브 어드벤처 · 1~2시간 분량 · 3개 엔딩</p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">줄거리</span>
+                                <p>
+                                    한 여름의 야간 정류장. 막차를 기다리는 '나'에게
+                                    익숙한 사람이 말을 걸어온다. 대화의 방향에 따라
+                                    다음 버스가 오기까지의 시간이 <em>고백</em>이 될지
+                                    <em>이별</em>이 될지, 또는 <em>그 둘 모두</em>가 될지가
+                                    갈린다.
+                                </p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">Tools</span>
+                                <div class="f-tools">
+                                    <span class="f-tool-pill"><img src="https://cdn.simpleicons.org/notion/0f0f0e" alt="" />Notion</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-w">W</span>Word</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-x">X</span>Excel</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-hwp">한</span>한글</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P02 · 등대 (이미지는 추후 교체 예정) -->
+                <div class="f-case f-case-port reverse">
+                    <div class="port-media">
+                        <div class="port-files-strip" aria-label="첨부 자료">
+                            <a class="port-file" href="#" data-file="p02-intent.pdf" aria-label="기획 의도 PDF">
+                                <span class="pf-badge pf-pdf">PDF</span>
+                                <span class="pf-name">기획 의도</span>
+                            </a>
+                            <a class="port-file" href="#" data-file="p02-route.xlsx" aria-label="루트 설계 XLSX">
+                                <span class="pf-badge pf-xlsx">XLSX</span>
+                                <span class="pf-name">루트 설계</span>
+                            </a>
+                            <a class="port-file" href="#" data-file="p02-pitch.pptx" aria-label="피칭 덱 PPTX">
+                                <span class="pf-badge pf-pptx">PPT</span>
+                                <span class="pf-name">피칭 덱</span>
+                            </a>
+                        </div>
+                        <div class="f-cover f-cover-port f-cover-3">
+                            <!-- TODO: P02 실제 이미지로 교체 -->
+                            <img class="port-photo" src="https://picsum.photos/seed/lighthouse-summer/1000/750" alt="" loading="lazy" />
+                            <div class="f-cover-num">P02</div>
+                            <div class="f-cover-tag">Visual Novel · Romance</div>
+                            <span class="pv-mark italic">lighthouse</span>
+                        </div>
+                    </div>
+                    <div class="f-info">
+                        <span class="f-date">Scenario Sample · 비주얼 노벨</span>
+                        <h3>등대지기의 여름</h3>
+                        <p class="port-tag-inline">
+                            "파도 소리가 같은 문장을 세 번쯤 반복할 무렵, 너는 왔다."
+                        </p>
+
+                        <div class="f-detail">
+                            <div class="f-detail-block">
+                                <span class="f-dt">기획 의도</span>
+                                <p>
+                                    로맨스 장르의 정서적 클리셰를 해체하지 않고 <em>정교하게
+                                    포개는 방식</em>을 실험하고 싶었습니다. 플레이어가 '예상
+                                    가능한 장면'을 통과하며 오히려 안정감을 느끼고, 그 안에서
+                                    작은 균열을 발견하는 구조입니다.
+                                </p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">게임 형식</span>
+                                <p>비주얼 노벨 · 선택지 기반 · 캐릭터 루트 3종 · 4~5시간 분량</p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">줄거리</span>
+                                <p>
+                                    외딴 섬 등대의 여름 보조 근무. 세 명의 방문자가 번갈아
+                                    찾아오고, 각자의 <em>"잊으려고 여기 왔다"</em>는 문장이
+                                    서로 다른 방식으로 수정되어 간다. 무엇을 잊었는지보다,
+                                    무엇을 기억하기로 했는지가 엔딩을 결정한다.
+                                </p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">Tools</span>
+                                <div class="f-tools">
+                                    <span class="f-tool-pill"><img src="https://cdn.simpleicons.org/notion/0f0f0e" alt="" />Notion</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-w">W</span>Word</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-x">X</span>Excel</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-pp">P</span>PowerPoint</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P03 · 탐정 -->
+                <div class="f-case f-case-port">
+                    <div class="port-media">
+                        <div class="port-files-strip" aria-label="첨부 자료">
+                            <a class="port-file" href="#" data-file="p03-intent.pdf" aria-label="기획 의도 PDF">
+                                <span class="pf-badge pf-pdf">PDF</span>
+                                <span class="pf-name">기획 의도</span>
+                            </a>
+                            <a class="port-file" href="#" data-file="p03-witness.xlsx" aria-label="증언 매트릭스 XLSX">
+                                <span class="pf-badge pf-xlsx">XLSX</span>
+                                <span class="pf-name">증언 매트릭스</span>
+                            </a>
+                            <a class="port-file" href="#" data-file="p03-pitch.pptx" aria-label="피칭 덱 PPTX">
+                                <span class="pf-badge pf-pptx">PPT</span>
+                                <span class="pf-name">피칭 덱</span>
+                            </a>
+                        </div>
+                        <div class="f-cover f-cover-port f-cover-4">
+                            <img class="port-photo" src="" alt="" />
+                            <div class="f-cover-num">P03</div>
+                            <div class="f-cover-tag">Mystery · Branching</div>
+                            <span class="pv-mark">witness<br />× 4</span>
+                        </div>
+                    </div>
+                    <div class="f-info">
+                        <span class="f-date">Scenario Sample · 분기형 미스터리</span>
+                        <h3>위증의 도서관</h3>
+                        <p class="port-tag-inline">
+                            "누가 거짓말을 하는가보다, 누구의 거짓말을 믿을 것인가."
+                        </p>
+
+                        <div class="f-detail">
+                            <div class="f-detail-block">
+                                <span class="f-dt">기획 의도</span>
+                                <p>
+                                    '진실을 찾는 미스터리' 대신 <em>'한 진실을 선택하는
+                                    미스터리'</em>를 만들고 싶었습니다. 플레이어가 모은 단서가
+                                    결론을 정하는 게 아니라, 플레이어가 무엇을 외면했는가가
+                                    결론을 바꾸는 설계를 지향했습니다.
+                                </p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">게임 형식</span>
+                                <p>분기형 미스터리 · 텍스트 중심 · 심문 시스템 · 다중 엔딩 5종</p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">줄거리</span>
+                                <p>
+                                    폐쇄된 기숙 도서관에서 한 학생이 사라진다. 플레이어는
+                                    학생회 조사관이 되어 네 명의 증언을 수집하되, 모든
+                                    증언은 서로의 기억을 <em>미세하게 수정</em>한다. 마지막
+                                    판결은 사건의 진실이 아니라 '누구의 서사를 공식화할
+                                    것인가'에 대한 선택이다.
+                                </p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">Tools</span>
+                                <div class="f-tools">
+                                    <span class="f-tool-pill"><img src="https://cdn.simpleicons.org/notion/0f0f0e" alt="" />Notion</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-x">X</span>Excel</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-w">W</span>Word</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-pp">P</span>PowerPoint</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P04 · 실험 단편 (이미지는 추후 교체 예정) -->
+                <div class="f-case f-case-port reverse">
+                    <div class="port-media">
+                        <div class="port-files-strip" aria-label="첨부 자료">
+                            <a class="port-file" href="#" data-file="p04-intent.pdf" aria-label="기획 의도 PDF">
+                                <span class="pf-badge pf-pdf">PDF</span>
+                                <span class="pf-name">기획 의도</span>
+                            </a>
+                            <a class="port-file" href="#" data-file="p04-scenes.xlsx" aria-label="장면 구성 XLSX">
+                                <span class="pf-badge pf-xlsx">XLSX</span>
+                                <span class="pf-name">장면 구성</span>
+                            </a>
+                            <a class="port-file" href="#" data-file="p04-pitch.pptx" aria-label="피칭 덱 PPTX">
+                                <span class="pf-badge pf-pptx">PPT</span>
+                                <span class="pf-name">피칭 덱</span>
+                            </a>
+                        </div>
+                        <div class="f-cover f-cover-port f-cover-1">
+                            <!-- TODO: P04 실제 이미지로 교체 -->
+                            <img class="port-photo" src="https://picsum.photos/seed/sunday-note-desk/1000/750" alt="" loading="lazy" />
+                            <div class="f-cover-num">P04</div>
+                            <div class="f-cover-tag">Interactive Fiction</div>
+                            <span class="pv-mark italic">sunday<br />note</span>
+                        </div>
+                    </div>
+                    <div class="f-info">
+                        <span class="f-date">Scenario Sample · 인터랙티브 픽션</span>
+                        <h3>일요일의 오답 노트</h3>
+                        <p class="port-tag-inline">
+                            "틀려본 적 있는 사람만이, 다음 문제를 고를 수 있다."
+                        </p>
+
+                        <div class="f-detail">
+                            <div class="f-detail-block">
+                                <span class="f-dt">기획 의도</span>
+                                <p>
+                                    <em>짧은 호흡의 인터랙티브 픽션</em>을 통해, 플레이어의
+                                    '일상적 선택 습관'을 드러내는 소형 게임을 시도했습니다.
+                                    기획자가 기록하는 '오답 노트'처럼, 플레이어가 복기하며
+                                    자기 자신을 읽어내는 경험을 설계했습니다.
+                                </p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">게임 형식</span>
+                                <p>텍스트 기반 인터랙티브 픽션 · 20~30분 분량 · 아카이브형 엔딩</p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">줄거리</span>
+                                <p>
+                                    매주 일요일 밤, '나'는 이번 주의 결정들을 복기한다.
+                                    작게 미뤘던 전화, 다르게 대답할 수 있었던 질문,
+                                    말하지 못한 고마움. 플레이어는 일곱 개의 장면을 다시
+                                    선택하고, 마지막엔 <em>'이번 주에 내가 누구였는지'</em>를
+                                    스스로 적게 된다.
+                                </p>
+                            </div>
+                            <div class="f-detail-block">
+                                <span class="f-dt">Tools</span>
+                                <div class="f-tools">
+                                    <span class="f-tool-pill"><img src="https://cdn.simpleicons.org/notion/0f0f0e" alt="" />Notion</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-w">W</span>Word</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-hwp">한</span>한글</span>
+                                    <span class="f-tool-pill"><span class="pill-mark pill-mark-pp">P</span>PowerPoint</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- =========================================================
+             CLOSING · divider · centered contact · thank-you
+             ========================================================= -->
+        <section class="closing" aria-label="Closing">
+            <hr class="closing-divider" />
+
+            <div class="contact-foot" role="group" aria-label="Contact">
+                <span class="cf-label">Contact</span>
+                <dl class="cf-list">
+                    <div>
+                        <dt>Phone</dt>
+                        <dd>010-5468-7269</dd>
+                    </div>
+                    <div>
+                        <dt>Email</dt>
+                        <dd><a href="mailto:hevem@naver.com" class="link">hevem@naver.com</a></dd>
+                    </div>
+                </dl>
+            </div>
+
+            <footer class="end-mark">
+                <span>—</span>
+                <p>Thank you for reading.</p>
+                <span>Hyunjin Jung · 2026</span>
+            </footer>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
