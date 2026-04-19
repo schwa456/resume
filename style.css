@@ -1259,6 +1259,13 @@ strong { font-weight: 600; color: var(--text); }
 }
 .rs-list-compact li { padding: 8px 0; font-size: 13px; }
 .rs-list-compact li strong { color: var(--text); }
+.rs-list-lang li span {
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    font-size: 18px;
+    letter-spacing: 0;
+    text-transform: none;
+    line-height: 1;
+}
 .chips {
     display: flex;
     flex-wrap: wrap;
