@@ -16,8 +16,10 @@ const { execFile } = require("child_process");
 
 const ROOT = path.resolve(__dirname, "..");
 const PORT = process.env.EDIT_PORT ? Number(process.env.EDIT_PORT) : 4173;
-const MAX_BODY = 5 * 1024 * 1024; // 5 MB
-const MAX_UPLOAD = 10 * 1024 * 1024; // 10 MB
+const MAX_BODY = 20 * 1024 * 1024; // 20 MB (index.html 본문 + 인라인 데이터)
+/* GitHub는 파일당 100 MB에서 push를 거부하므로 그보다 여유있게 작게.
+   이 이상 파일이 필요하면 Git LFS 도입 고려. */
+const MAX_UPLOAD = 80 * 1024 * 1024; // 80 MB
 const UPLOADS_REL = path.join("assets", "uploads");
 const ALLOWED_IMG = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"]);
 const ALLOWED_DOC = new Set([".pdf", ".hwp", ".hwpx", ".ppt", ".pptx", ".xls", ".xlsx", ".doc", ".docx", ".txt"]);
