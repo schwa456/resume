@@ -493,6 +493,19 @@
                 <option value="none">원본 크기 (none)</option>
             </select>
         </div>
+        <div class="iep-row iep-row-ratio">
+            <label>프레임 비율</label>
+            <select id="iep-ratio">
+                <option value="">섹션 기본</option>
+                <option value="1 / 1">1 : 1 (정사각)</option>
+                <option value="4 / 3">4 : 3 (표준)</option>
+                <option value="3 / 2">3 : 2 (가로형)</option>
+                <option value="16 / 9">16 : 9 (와이드)</option>
+                <option value="4 / 5">4 : 5 (세로형)</option>
+                <option value="2 / 3">2 : 3 (책표지)</option>
+            </select>
+            <p class="iep-hint">같은 섹션 내 모든 이미지를 같은 비율로 맞추면 시선 정렬이 한결 깔끔해집니다.</p>
+        </div>
         <div class="iep-actions">
             <button type="button" id="iep-replace">교체</button>
             <button type="button" id="iep-del" class="iep-del">삭제</button>
@@ -542,6 +555,18 @@
 
         const currentFit = img.style.objectFit || cs.objectFit || "cover";
         imgEditPopover.querySelector("#iep-fit").value = currentFit;
+
+        /* Aspect-ratio row only meaningful for slot images — operates on the slot. */
+        const ratioRow = imgEditPopover.querySelector(".iep-row-ratio");
+        const ratioSel = imgEditPopover.querySelector("#iep-ratio");
+        ratioRow.style.display = slot ? "" : "none";
+        if (slot) {
+            const slotEl = img.closest("[data-image-slot]");
+            const inlineRatio = (slotEl && slotEl.style.aspectRatio) || "";
+            /* Normalize whitespace — select options use "W / H". */
+            const norm = String(inlineRatio).replace(/\s+/g, " ").trim();
+            ratioSel.value = Array.from(ratioSel.options).some((o) => o.value === norm) ? norm : "";
+        }
 
         const [px, py] = parsePos(img.style.objectPosition || cs.objectPosition);
         imgEditPopover.querySelectorAll("#iep-grid button").forEach((b) => {
@@ -673,13 +698,54 @@
     const applyImage = (uploadedPath, originalName) => {
         if (pendingSlot instanceof HTMLImageElement) {
             pendingSlot.src = uploadedPath;
+            if (pendingSlot.hasAttribute("alt")) pendingSlot.alt = originalName;
+            /* If this is a designated port-photo inside a .f-cover, ensure
+               parent carries .has-photo so overlays stay readable. */
+            const cover = pendingSlot.closest(".f-cover");
+            if (cover) cover.classList.add("has-photo");
             return;
         }
         if (pendingSlot && pendingSlot.hasAttribute("data-image-slot")) {
-            /* Replace slot contents with a cover-fit image, stripping any placeholder text. */
-            pendingSlot.innerHTML = `<img src="${uploadedPath}" alt="${originalName}" data-edit-img="true" style="width:100%;height:100%;object-fit:cover;object-position:50% 50%;transform-origin:50% 50%;display:block;border-radius:inherit;">`;
-            const injected = pendingSlot.querySelector("img");
-            if (injected) attachImgEditHandlers(injected);
+            /* 1. Prefer updating a pre-existing designated photo img
+                  (.port-photo in portfolio/writing, .f-cover-photo-img
+                  in Career C02, or previously-injected .slot-photo). */
+            const existing = pendingSlot.querySelector(
+                "img.port-photo, img.f-cover-photo-img, img.slot-photo"
+            );
+            if (existing) {
+                existing.src = uploadedPath;
+                existing.alt = originalName;
+                existing.style.objectPosition = "50% 50%";
+                existing.style.transformOrigin = "50% 50%";
+                existing.style.transform = "";
+                attachImgEditHandlers(existing);
+                pendingSlot.classList.add("has-photo");
+                return;
+            }
+            /* 2. Portrait frames (cover H / resume H) have no overlays —
+                  simpler to replace contents with a full-bleed img. */
+            if (pendingSlot.matches(".portrait-frame, .rs-portrait")) {
+                pendingSlot.innerHTML =
+                    `<img src="${uploadedPath}" alt="${originalName}" data-edit-img="true" class="slot-photo" style="position:static;">`;
+                const injected = pendingSlot.querySelector("img");
+                if (injected) {
+                    /* portrait slots want the image to fill naturally, not absolute */
+                    injected.style.position = "static";
+                    attachImgEditHandlers(injected);
+                }
+                return;
+            }
+            /* 3. .f-cover without an existing photo placeholder — inject a
+                  .slot-photo absolute image as FIRST child so overlays
+                  (number/tag/pv-mark) stay visible on top. */
+            const img = document.createElement("img");
+            img.src = uploadedPath;
+            img.alt = originalName;
+            img.className = "slot-photo";
+            img.setAttribute("data-edit-img", "true");
+            pendingSlot.insertBefore(img, pendingSlot.firstChild);
+            pendingSlot.classList.add("has-photo");
+            attachImgEditHandlers(img);
             return;
         }
         if (lastFocused) {
@@ -926,6 +992,7 @@
         const widthInput = imgEditPopover.querySelector("#iep-width");
         const widthVal   = imgEditPopover.querySelector("#iep-w-val");
         const fitSelect  = imgEditPopover.querySelector("#iep-fit");
+        const ratioSelect = imgEditPopover.querySelector("#iep-ratio");
         const gridEl     = imgEditPopover.querySelector("#iep-grid");
         const replaceBtn = imgEditPopover.querySelector("#iep-replace");
         const deleteBtn  = imgEditPopover.querySelector("#iep-del");
@@ -946,6 +1013,19 @@
         fitSelect.addEventListener("change", () => {
             if (!activeImg) return;
             activeImg.style.objectFit = fitSelect.value;
+            dirtyRef.value = true;
+            setStatus("dirty");
+        });
+
+        ratioSelect.addEventListener("change", () => {
+            if (!activeImg) return;
+            const slotEl = activeImg.closest("[data-image-slot]");
+            if (!slotEl) return;
+            if (ratioSelect.value) {
+                slotEl.style.aspectRatio = ratioSelect.value;
+            } else {
+                slotEl.style.aspectRatio = "";
+            }
             dirtyRef.value = true;
             setStatus("dirty");
         });
@@ -977,12 +1057,22 @@
             if (!activeImg) return;
             if (!confirm("이미지를 삭제하시겠습니까?")) return;
             const slot = activeImg.closest("[data-image-slot]");
-            if (slot && slot.children.length === 1 && slot.firstElementChild === activeImg) {
-                /* Slot had only this image — leave the slot empty (original text
-                   placeholder is lost; user can retype if needed). */
-                slot.innerHTML = "";
+            /* Preserve overlays (number/tag/pv-mark) and any port-photo
+               placeholder. For designated placeholders we only blank the src;
+               for injected .slot-photo we remove the node. */
+            if (activeImg.matches("img.port-photo, img.f-cover-photo-img")) {
+                activeImg.setAttribute("src", "");
+                activeImg.removeAttribute("alt");
+                activeImg.style.objectPosition = "";
+                activeImg.style.transformOrigin = "";
+                activeImg.style.transform = "";
             } else {
                 activeImg.remove();
+            }
+            if (slot) {
+                slot.classList.remove("has-photo");
+                /* Clear any inline aspect-ratio override so section default reapplies. */
+                if (slot.style.aspectRatio) slot.style.aspectRatio = "";
             }
             closeImgPopover();
             dirtyRef.value = true;

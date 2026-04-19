@@ -2112,6 +2112,55 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
     text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
 }
 
+/* ===============================================================
+   Unified photo state · works for Career (C01–C04), Archive (A01–A04),
+   Portfolio (P01–P03), and Writing (W01–W02) alike. All .f-cover slots
+   share aspect-ratio: 4/3 defined above — any uploaded image is
+   cropped with object-fit: cover so the resulting card block stays
+   visually consistent across sections.
+   =============================================================== */
+.slot-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 50%;
+    transform-origin: 50% 50%;
+    display: block;
+    border-radius: inherit;
+    z-index: 1;
+}
+.f-cover.has-photo {
+    overflow: hidden;
+    color: #fff;
+}
+.f-cover.has-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        rgba(10, 14, 30, 0.48) 0%,
+        rgba(10, 14, 30, 0.14) 38%,
+        rgba(10, 14, 30, 0.68) 100%);
+    z-index: 2;
+    pointer-events: none;
+    border-radius: inherit;
+}
+.f-cover.has-photo .f-cover-num,
+.f-cover.has-photo .f-cover-tag,
+.f-cover.has-photo .pv-mark {
+    z-index: 3;
+    color: #fff;
+}
+.f-cover.has-photo .f-cover-tag {
+    border-color: rgba(255, 255, 255, 0.85);
+}
+.f-cover.has-photo .pv-mark {
+    opacity: 0.95;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+}
+
 /* Career cover that shows a real photo (C02) */
 .f-cover.f-cover-photo {
     position: relative;
