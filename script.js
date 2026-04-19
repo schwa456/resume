@@ -10,7 +10,6 @@
     const marks = document.querySelectorAll(".rail-mark");
     const slides = Array.from(document.querySelectorAll(".slide"));
     const railFill = document.getElementById("railFill");
-    const railPct = document.getElementById("railPct");
     const railTrack = document.querySelector(".rail-track");
 
     /* ---------- Active section (folder + rail mark) ---------- */
@@ -41,9 +40,6 @@
         const docH = document.documentElement.scrollHeight - window.innerHeight;
         const pct = docH > 0 ? Math.min(100, Math.max(0, (scrollTop / docH) * 100)) : 0;
 
-        if (railPct) {
-            railPct.textContent = String(Math.round(pct)).padStart(2, "0");
-        }
         if (railFill && railTrack) {
             // Fill scales the rail from its top (22px from track top) to its bottom (22px from track bottom)
             const trackH = railTrack.clientHeight - 44;

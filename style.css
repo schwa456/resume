@@ -273,11 +273,12 @@ strong { font-weight: 600; color: var(--text); }
 .rail-mark {
     display: flex;
     align-items: center;
-    gap: 10px;
     justify-content: flex-end;
     padding: 10px 0;
     color: var(--text-muted);
     position: relative;
+    width: 22px;
+    margin-left: auto;
 }
 .mark-label {
     font-family: var(--font-mono);
@@ -286,9 +287,13 @@ strong { font-weight: 600; color: var(--text); }
     text-transform: uppercase;
     color: var(--text-soft);
     opacity: 0;
-    transform: translateX(6px);
     transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), color 0.3s var(--ease);
     white-space: nowrap;
+    position: absolute;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%) translateX(6px);
+    pointer-events: none;
 }
 .mark-dot {
     width: 9px; height: 9px;
@@ -303,11 +308,11 @@ strong { font-weight: 600; color: var(--text); }
 }
 .rail-mark:hover .mark-label {
     opacity: 0.7;
-    transform: translateX(0);
+    transform: translateY(-50%) translateX(0);
 }
 .rail-mark.is-active .mark-label {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(-50%) translateX(0);
     color: var(--text);
     font-weight: 600;
 }
@@ -320,30 +325,6 @@ strong { font-weight: 600; color: var(--text); }
     background: var(--accent);
     border-color: var(--accent);
 }
-.rail-meter {
-    text-align: right;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-muted);
-    letter-spacing: 0.08em;
-    padding-right: 2px;
-}
-.rail-meter span {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text);
-    letter-spacing: -0.02em;
-}
-.rail-meter em {
-    font-style: normal;
-    font-size: 12px;
-    margin-left: 1px;
-    background: none;
-    padding: 0;
-    color: var(--text-muted);
-    font-weight: 400;
-}
-
 /* ==========================================================
    Slide base
    ========================================================== */
@@ -1345,6 +1326,21 @@ strong { font-weight: 600; color: var(--text); }
 }
 
 .featured-archive { gap: 40px; margin-bottom: 64px; margin-top: 12px; }
+
+.featured-sub-head-writing {
+    margin-top: 56px;
+    padding-top: 28px;
+}
+.featured-writing {
+    gap: 48px;
+    margin-top: 12px;
+    margin-bottom: 32px;
+}
+.f-case-writing .f-cover-tag {
+    background: rgba(29, 78, 216, 0.08);
+    color: var(--accent);
+    border-color: transparent;
+}
 
 .f-files-strip {
     display: flex;
