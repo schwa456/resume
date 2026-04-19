@@ -1362,7 +1362,6 @@ strong { font-weight: 600; color: var(--text); }
 .f-files-strip {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-end;
     gap: 8px;
     margin-top: 4px;
 }
@@ -2037,11 +2036,28 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
 /* File-chip row · outside and above the cover (no outer wrapper) */
 .port-files-strip {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     padding: 0;
     background: transparent;
     border: none;
     box-shadow: none;
+}
+
+/* Collection layout · used in the Short Story collection card where a
+   single block holds many attachments. Two-column grid keeps each row
+   balanced and prevents the chips from flowing into an unreadable ribbon. */
+.port-files-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+.port-files-grid .port-file {
+    width: 100%;
+    min-width: 0;
+}
+@media (max-width: 900px) {
+    .port-files-grid { grid-template-columns: 1fr; }
 }
 
 .f-case-port .f-cover {
@@ -2152,10 +2168,33 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
     overflow: hidden;
     color: #fff;
     border-color: transparent;
+    background: transparent;
     /* Zero padding so the image reaches every edge; previous 28px padding
        was read as a "black frame" around the photo. Number/tag now carry
        the visual inset via margins. */
     padding: 0;
+    /* Let the photo decide its own height — lock width, drop the 4/3 ratio
+       so the container follows the image's natural aspect. */
+    aspect-ratio: auto;
+}
+.f-cover.has-photo .slot-photo,
+.f-cover.has-photo .port-photo {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+.f-case-port .f-cover:has(.port-photo:not([src=""])) {
+    background: transparent;
+    aspect-ratio: auto;
+}
+.f-case-port .f-cover:has(.port-photo:not([src=""])) .port-photo {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
 }
 .f-cover.has-photo .f-cover-num,
 .f-cover.has-photo .f-cover-tag {
