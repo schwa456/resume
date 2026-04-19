@@ -246,16 +246,13 @@
             });
         });
 
-        /* Existing <img> elements — clicking one replaces its src. */
+        /* Existing <img> elements — clicking one opens the edit popover
+           (size · position · fit · replace · delete). Replace is deferred
+           to the popover's "교체" button. */
         document.querySelectorAll("img").forEach((img) => {
             if (img.closest("#edit-toolbar")) return;
-            img.setAttribute("data-edit-img", "true");
-            img.addEventListener("click", (ev) => {
-                ev.stopPropagation();
-                pendingSlot = img;
-                pendingMode = "image";
-                imageInput.click();
-            });
+            if (img.closest("#img-edit-pop")) return;
+            attachImgEditHandlers(img);
         });
 
         /* File slots: clicking a file-link anchor opens a file picker to replace it. */
@@ -275,6 +272,250 @@
                     docInput.click();
                 });
             });
+        });
+    };
+
+    /* =====================================================================
+       Image edit popover — size / object-position / object-fit / replace / delete.
+       Opens when the user clicks any <img data-edit-img>.
+       ===================================================================== */
+    const imgEditPopover = document.createElement("div");
+    imgEditPopover.id = "img-edit-pop";
+    imgEditPopover.innerHTML = `
+        <style>
+            #img-edit-pop {
+                position: absolute;
+                z-index: 99998;
+                background: #0f0f0e;
+                color: #fff;
+                padding: 14px 16px;
+                border-radius: 14px;
+                box-shadow: 0 12px 32px rgba(0, 0, 0, 0.32);
+                font-family: -apple-system, "Pretendard Variable", sans-serif;
+                font-size: 12px;
+                display: none;
+                min-width: 220px;
+                user-select: none;
+            }
+            #img-edit-pop.is-open { display: block; }
+            #img-edit-pop .iep-row { margin-bottom: 12px; }
+            #img-edit-pop .iep-row:last-child { margin-bottom: 0; }
+            #img-edit-pop label {
+                display: block;
+                color: #9ca3af;
+                font-family: "JetBrains Mono", ui-monospace, monospace;
+                font-size: 10px;
+                letter-spacing: 0.08em;
+                margin-bottom: 6px;
+                text-transform: uppercase;
+            }
+            #img-edit-pop .iep-value {
+                color: #fff;
+                font-family: "JetBrains Mono", ui-monospace, monospace;
+                font-size: 10px;
+                float: right;
+                text-transform: none;
+            }
+            #img-edit-pop input[type=range] {
+                width: 100%;
+                accent-color: #1D4ED8;
+            }
+            #img-edit-pop .iep-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 24px);
+                grid-template-rows: repeat(3, 24px);
+                gap: 4px;
+            }
+            #img-edit-pop .iep-grid button {
+                background: transparent;
+                border: 1px solid rgba(255, 255, 255, 0.22);
+                border-radius: 4px;
+                padding: 0;
+                cursor: pointer;
+                transition: all 0.15s ease;
+            }
+            #img-edit-pop .iep-grid button:hover { background: rgba(255, 255, 255, 0.14); }
+            #img-edit-pop .iep-grid button.active {
+                background: #1D4ED8;
+                border-color: #1D4ED8;
+            }
+            #img-edit-pop select {
+                width: 100%;
+                padding: 6px 8px;
+                background: #1a1a18;
+                color: #fff;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 6px;
+                font: inherit;
+            }
+            #img-edit-pop .iep-actions {
+                display: flex;
+                gap: 6px;
+                margin-top: 6px;
+            }
+            #img-edit-pop .iep-actions button {
+                flex: 1;
+                background: transparent;
+                color: #fff;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 8px;
+                padding: 7px 10px;
+                cursor: pointer;
+                font: inherit;
+                transition: all 0.15s ease;
+            }
+            #img-edit-pop .iep-actions button:hover { background: rgba(255, 255, 255, 0.12); }
+            #img-edit-pop .iep-actions .iep-del {
+                color: #fca5a5;
+                border-color: rgba(252, 165, 165, 0.4);
+            }
+            #img-edit-pop .iep-actions .iep-del:hover {
+                background: rgba(252, 165, 165, 0.15);
+            }
+            #img-edit-pop .iep-hint {
+                color: #9ca3af;
+                font-size: 10px;
+                line-height: 1.4;
+                margin-top: 2px;
+            }
+        </style>
+        <div class="iep-row">
+            <label>크기 <span class="iep-value" id="iep-w-val">100%</span></label>
+            <input type="range" id="iep-width" min="20" max="100" step="5" value="100">
+        </div>
+        <div class="iep-row">
+            <label>정렬 (포커스 위치)</label>
+            <div class="iep-grid" id="iep-grid">
+                <button type="button" data-pos="0% 0%"   title="좌상"></button>
+                <button type="button" data-pos="50% 0%"  title="상단"></button>
+                <button type="button" data-pos="100% 0%" title="우상"></button>
+                <button type="button" data-pos="0% 50%"  title="좌측"></button>
+                <button type="button" data-pos="50% 50%" class="active" title="중앙"></button>
+                <button type="button" data-pos="100% 50%" title="우측"></button>
+                <button type="button" data-pos="0% 100%"   title="좌하"></button>
+                <button type="button" data-pos="50% 100%"  title="하단"></button>
+                <button type="button" data-pos="100% 100%" title="우하"></button>
+            </div>
+            <p class="iep-hint">이미지 자체를 드래그해서 세밀하게 맞출 수도 있습니다.</p>
+        </div>
+        <div class="iep-row">
+            <label>채우기 방식</label>
+            <select id="iep-fit">
+                <option value="cover">꽉 채우기 (cover)</option>
+                <option value="contain">비율 유지 (contain)</option>
+                <option value="fill">늘여서 채움 (fill)</option>
+                <option value="none">원본 크기 (none)</option>
+            </select>
+        </div>
+        <div class="iep-actions">
+            <button type="button" id="iep-replace">교체</button>
+            <button type="button" id="iep-del" class="iep-del">삭제</button>
+        </div>
+    `;
+
+    /* State for the popover's current target. */
+    let activeImg = null;
+
+    const isSlotImage = (img) => !!img && !!img.closest && !!img.closest("[data-image-slot]");
+
+    const parsePos = (s) => {
+        const m = String(s || "").match(/(-?\d+(?:\.\d+)?)%\s+(-?\d+(?:\.\d+)?)%/);
+        return m ? [parseFloat(m[1]), parseFloat(m[2])] : [50, 50];
+    };
+
+    const openImgPopover = (img) => {
+        activeImg = img;
+        /* Populate controls from current inline styles. */
+        const cs = window.getComputedStyle(img);
+        const inlineW = img.style.width || "";
+        const slot = isSlotImage(img);
+        const widthPct = inlineW.endsWith("%") ? parseInt(inlineW, 10) : (slot ? 100 : 100);
+        const widthRow = imgEditPopover.querySelector("#iep-width").closest(".iep-row");
+        /* In a slot, width is dictated by slot size — hide the slider there. */
+        widthRow.style.display = slot ? "none" : "";
+        imgEditPopover.querySelector("#iep-width").value = String(Math.max(20, Math.min(100, widthPct || 100)));
+        imgEditPopover.querySelector("#iep-w-val").textContent = imgEditPopover.querySelector("#iep-width").value + "%";
+
+        const currentFit = img.style.objectFit || cs.objectFit || "cover";
+        imgEditPopover.querySelector("#iep-fit").value = currentFit;
+
+        const [px, py] = parsePos(img.style.objectPosition || cs.objectPosition);
+        imgEditPopover.querySelectorAll("#iep-grid button").forEach((b) => {
+            const [bx, by] = parsePos(b.getAttribute("data-pos"));
+            b.classList.toggle("active", bx === px && by === py);
+        });
+
+        /* Position the popover just below the image, within viewport. */
+        imgEditPopover.classList.add("is-open");
+        const rect = img.getBoundingClientRect();
+        const scrollX = window.scrollX;
+        const scrollY = window.scrollY;
+        const popRect = imgEditPopover.getBoundingClientRect();
+        let left = rect.left + scrollX + rect.width / 2 - popRect.width / 2;
+        let top  = rect.bottom + scrollY + 10;
+        /* Clamp to viewport horizontally. */
+        const margin = 12;
+        const vw = document.documentElement.clientWidth;
+        left = Math.max(scrollX + margin, Math.min(left, scrollX + vw - popRect.width - margin));
+        /* If popover would fall below viewport, flip above the image. */
+        if (rect.bottom + popRect.height + 20 > window.innerHeight) {
+            top = rect.top + scrollY - popRect.height - 10;
+        }
+        imgEditPopover.style.left = left + "px";
+        imgEditPopover.style.top  = top + "px";
+    };
+
+    const closeImgPopover = () => {
+        imgEditPopover.classList.remove("is-open");
+        activeImg = null;
+    };
+
+    const attachImgEditHandlers = (img) => {
+        if (img.dataset.editImgBound === "1") return;
+        img.setAttribute("data-edit-img", "true");
+        img.setAttribute("draggable", "false");
+        img.dataset.editImgBound = "1";
+
+        img.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            ev.preventDefault();
+            openImgPopover(img);
+        });
+
+        /* Drag to reposition: only meaningful for cover/contain inside a slot.
+           Adjusts object-position as percentages based on cursor movement
+           relative to the image box. */
+        img.addEventListener("mousedown", (ev) => {
+            if (ev.button !== 0) return;
+            if (!isSlotImage(img)) return;
+            const rect = img.getBoundingClientRect();
+            const [startX, startY] = parsePos(img.style.objectPosition || "50% 50%");
+            const originX = ev.clientX;
+            const originY = ev.clientY;
+            let moved = false;
+
+            const onMove = (e) => {
+                const dx = e.clientX - originX;
+                const dy = e.clientY - originY;
+                if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+                /* Inverse relation: dragging right should reveal the left side. */
+                const nx = Math.max(0, Math.min(100, startX - (dx / rect.width) * 100));
+                const ny = Math.max(0, Math.min(100, startY - (dy / rect.height) * 100));
+                img.style.objectPosition = `${nx.toFixed(1)}% ${ny.toFixed(1)}%`;
+                dirtyRef.value = true;
+            };
+            const onUp = () => {
+                document.removeEventListener("mousemove", onMove);
+                document.removeEventListener("mouseup", onUp);
+                if (moved) {
+                    /* Sync the grid active state after a drag. */
+                    if (activeImg === img) openImgPopover(img);
+                    setStatus("dirty");
+                }
+            };
+            document.addEventListener("mousemove", onMove);
+            document.addEventListener("mouseup", onUp);
+            ev.preventDefault();
         });
     };
 
@@ -330,16 +571,9 @@
         }
         if (pendingSlot && pendingSlot.hasAttribute("data-image-slot")) {
             /* Replace slot contents with a cover-fit image, stripping any placeholder text. */
-            pendingSlot.innerHTML = `<img src="${uploadedPath}" alt="${originalName}" data-edit-img="true" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;">`;
+            pendingSlot.innerHTML = `<img src="${uploadedPath}" alt="${originalName}" data-edit-img="true" style="width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block;border-radius:inherit;">`;
             const injected = pendingSlot.querySelector("img");
-            if (injected) {
-                injected.addEventListener("click", (ev) => {
-                    ev.stopPropagation();
-                    pendingSlot = injected;
-                    pendingMode = "image";
-                    imageInput.click();
-                });
-            }
+            if (injected) attachImgEditHandlers(injected);
             return;
         }
         if (lastFocused) {
@@ -347,10 +581,12 @@
             img.src = uploadedPath;
             img.alt = originalName;
             img.setAttribute("data-edit-img", "true");
+            img.style.width = "100%";
             img.style.maxWidth = "100%";
             img.style.display = "block";
-            img.style.margin = "12px 0";
+            img.style.margin = "12px auto";
             lastFocused.appendChild(img);
+            attachImgEditHandlers(img);
             return;
         }
         alert("이미지를 삽입할 블록을 먼저 클릭하세요.\n또는 이미지 영역(점선 박스)을 클릭해서 교체하세요.");
@@ -452,12 +688,16 @@
         });
         clone.querySelectorAll("[data-edit-img]").forEach((el) => {
             el.removeAttribute("data-edit-img");
+            el.removeAttribute("draggable");
+            if (el.dataset) delete el.dataset.editImgBound;
         });
         clone.querySelectorAll("[data-file-slot]").forEach((el) => {
             el.removeAttribute("data-file-slot");
         });
         const toolbarClone = clone.querySelector("#edit-toolbar");
         if (toolbarClone) toolbarClone.remove();
+        const popClone = clone.querySelector("#img-edit-pop");
+        if (popClone) popClone.remove();
         /* Hidden file inputs appended to <html> — strip them. */
         clone.querySelectorAll('input[type="file"]').forEach((el) => {
             if (el.style && el.style.display === "none") el.remove();
@@ -505,6 +745,8 @@
     document.addEventListener("DOMContentLoaded", () => {
         activate();
         document.body.appendChild(toolbar);
+        document.body.appendChild(imgEditPopover);
+
         toolbar.querySelector(".et-save").addEventListener("click", save);
         toolbar.querySelector(".et-discard").addEventListener("click", discard);
         toolbar.querySelector(".et-image").addEventListener("click", () => {
@@ -516,6 +758,77 @@
             pendingSlot = null;
             pendingMode = "doc";
             docInput.click();
+        });
+
+        /* Image edit popover — wire controls. */
+        const widthInput = imgEditPopover.querySelector("#iep-width");
+        const widthVal   = imgEditPopover.querySelector("#iep-w-val");
+        const fitSelect  = imgEditPopover.querySelector("#iep-fit");
+        const gridEl     = imgEditPopover.querySelector("#iep-grid");
+        const replaceBtn = imgEditPopover.querySelector("#iep-replace");
+        const deleteBtn  = imgEditPopover.querySelector("#iep-del");
+
+        widthInput.addEventListener("input", () => {
+            widthVal.textContent = widthInput.value + "%";
+            if (!activeImg) return;
+            if (isSlotImage(activeImg)) return;
+            activeImg.style.width = widthInput.value + "%";
+            dirtyRef.value = true;
+            setStatus("dirty");
+        });
+
+        fitSelect.addEventListener("change", () => {
+            if (!activeImg) return;
+            activeImg.style.objectFit = fitSelect.value;
+            dirtyRef.value = true;
+            setStatus("dirty");
+        });
+
+        gridEl.addEventListener("click", (e) => {
+            const btn = e.target.closest("button[data-pos]");
+            if (!btn || !activeImg) return;
+            gridEl.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            activeImg.style.objectPosition = btn.getAttribute("data-pos");
+            dirtyRef.value = true;
+            setStatus("dirty");
+        });
+
+        replaceBtn.addEventListener("click", () => {
+            if (!activeImg) return;
+            pendingSlot = activeImg;
+            pendingMode = "image";
+            closeImgPopover();
+            imageInput.click();
+        });
+
+        deleteBtn.addEventListener("click", () => {
+            if (!activeImg) return;
+            if (!confirm("이미지를 삭제하시겠습니까?")) return;
+            const slot = activeImg.closest("[data-image-slot]");
+            if (slot && slot.children.length === 1 && slot.firstElementChild === activeImg) {
+                /* Slot had only this image — leave the slot empty (original text
+                   placeholder is lost; user can retype if needed). */
+                slot.innerHTML = "";
+            } else {
+                activeImg.remove();
+            }
+            closeImgPopover();
+            dirtyRef.value = true;
+            setStatus("dirty");
+        });
+
+        /* Close popover: outside click, Escape, scroll. */
+        document.addEventListener("mousedown", (e) => {
+            if (!imgEditPopover.classList.contains("is-open")) return;
+            if (e.target.closest("#img-edit-pop")) return;
+            if (e.target.closest("[data-edit-img]")) return;
+            closeImgPopover();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && imgEditPopover.classList.contains("is-open")) {
+                closeImgPopover();
+            }
         });
 
         /* Track the last focused editable block so "+ 이미지/파일" buttons know
