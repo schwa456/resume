@@ -2204,9 +2204,11 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
 }
 .f-cover.f-cover-photo {
     border-color: transparent;
-    /* Match has-photo treatment: image reaches edges, text carries inset. */
-    padding: 0;
 }
+/* padding:0 + margin-based inset are handled by the shared .has-photo rule.
+   C02's HTML already carries f-cover-photo unconditionally, so any actual
+   image upload will also add .has-photo (via edit-mode) and inherit the
+   unified treatment. */
 .f-cover.f-cover-photo .f-cover-num,
 .f-cover.f-cover-photo .f-cover-tag {
     position: relative;
@@ -2216,10 +2218,7 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
         0 1px 2px rgba(0, 0, 0, 0.55),
         0 2px 14px rgba(0, 0, 0, 0.45);
 }
-.f-cover.f-cover-photo .f-cover-num { margin: 28px 28px 0; }
 .f-cover.f-cover-photo .f-cover-tag {
-    margin: 0 28px 28px;
-    align-self: flex-start;
     border-color: rgba(255, 255, 255, 0.85);
     background: rgba(15, 15, 14, 0.28);
     backdrop-filter: blur(4px);
