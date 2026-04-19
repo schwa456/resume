@@ -17,6 +17,10 @@ const { execFile } = require("child_process");
 const ROOT = path.resolve(__dirname, "..");
 const PORT = process.env.EDIT_PORT ? Number(process.env.EDIT_PORT) : 4173;
 const MAX_BODY = 5 * 1024 * 1024; // 5 MB
+const MAX_UPLOAD = 10 * 1024 * 1024; // 10 MB
+const UPLOADS_REL = path.join("assets", "uploads");
+const ALLOWED_IMG = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"]);
+const ALLOWED_DOC = new Set([".pdf", ".hwp", ".hwpx", ".ppt", ".pptx", ".xls", ".xlsx", ".doc", ".docx", ".txt"]);
 
 const MIME = {
     ".html": "text/html; charset=utf-8",
@@ -99,7 +103,11 @@ function git(args) {
 }
 
 async function commitAndPush(message) {
-    await git(["add", "index.html"]);
+    const addArgs = ["add", "index.html"];
+    if (fs.existsSync(path.join(ROOT, "assets"))) {
+        addArgs.push("assets");
+    }
+    await git(addArgs);
     const status = await git(["status", "--porcelain"]);
     if (!status.stdout.trim()) {
         return { committed: false, reason: "no changes" };
@@ -107,6 +115,55 @@ async function commitAndPush(message) {
     await git(["commit", "-m", message]);
     await git(["push", "origin", "main"]);
     return { committed: true };
+}
+
+function readRawBody(req, limit) {
+    return new Promise((resolve, reject) => {
+        const chunks = [];
+        let size = 0;
+        req.on("data", (c) => {
+            size += c.length;
+            if (size > limit) {
+                reject(new Error("body too large"));
+                req.destroy();
+                return;
+            }
+            chunks.push(c);
+        });
+        req.on("end", () => resolve(Buffer.concat(chunks)));
+        req.on("error", reject);
+    });
+}
+
+async function handleUpload(req, res) {
+    try {
+        const rawName = decodeURIComponent(req.headers["x-filename"] || "upload");
+        const ext = path.extname(rawName).toLowerCase();
+        if (!ALLOWED_IMG.has(ext)) {
+            res.writeHead(400, { "Content-Type": "application/json" })
+                .end(JSON.stringify({ ok: false, error: `ext not allowed: ${ext}` }));
+            return;
+        }
+        const base = path.basename(rawName, ext).replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 60) || "img";
+        const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+        const filename = `${ts}-${base}${ext}`;
+
+        const uploadsAbs = path.join(ROOT, UPLOADS_REL);
+        fs.mkdirSync(uploadsAbs, { recursive: true });
+
+        const buf = await readRawBody(req, MAX_UPLOAD);
+        const target = path.join(uploadsAbs, filename);
+        fs.writeFileSync(target, buf);
+        log("uploaded", filename, `(${buf.length} bytes)`);
+
+        const relPath = UPLOADS_REL.replace(/\\/g, "/") + "/" + filename;
+        res.writeHead(200, { "Content-Type": "application/json" })
+            .end(JSON.stringify({ ok: true, path: relPath, bytes: buf.length }));
+    } catch (err) {
+        log("upload error:", err.message);
+        res.writeHead(500, { "Content-Type": "application/json" })
+            .end(JSON.stringify({ ok: false, error: err.message }));
+    }
 }
 
 async function handleSave(req, res) {
@@ -142,6 +199,10 @@ const server = http.createServer((req, res) => {
     // CORS-safe origin check: only accept saves from same origin (localhost)
     if (req.method === "PUT" && req.url === "/save") {
         handleSave(req, res);
+        return;
+    }
+    if (req.method === "POST" && req.url === "/upload") {
+        handleUpload(req, res);
         return;
     }
     if (req.method === "GET") {

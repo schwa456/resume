@@ -126,12 +126,99 @@
                 outline-offset: 4px;
                 background: rgba(219, 234, 254, 0.3);
             }
+            [data-image-slot="true"] {
+                cursor: pointer;
+                position: relative;
+            }
+            [data-image-slot="true"]::after {
+                content: "⬆ 이미지 업로드";
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                background: rgba(15, 15, 14, 0.78);
+                color: #fff;
+                font-family: "JetBrains Mono", ui-monospace, monospace;
+                font-size: 10px;
+                letter-spacing: 0.06em;
+                padding: 4px 9px;
+                border-radius: 99px;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.18s ease;
+                z-index: 10;
+            }
+            [data-image-slot="true"]:hover::after {
+                opacity: 1;
+            }
+            [data-image-slot="true"]:hover {
+                outline: 2px dashed rgba(29, 78, 216, 0.55);
+                outline-offset: 2px;
+            }
+            [data-edit-img="true"] {
+                outline: 1px dashed rgba(29, 78, 216, 0.35);
+                outline-offset: 3px;
+                cursor: pointer;
+            }
+            [data-edit-img="true"]:hover {
+                outline: 2px solid #1D4ED8;
+            }
+            [data-file-slot="true"] {
+                position: relative;
+            }
+            [data-file-slot="true"]:hover {
+                outline: 2px dashed rgba(29, 78, 216, 0.55);
+                outline-offset: 2px;
+            }
         </style>
         <span class="et-label">✎ Edit Mode</span>
         <span class="et-status" id="et-status">idle</span>
+        <button class="et-image" title="포커스된 블록에 이미지 삽입">+ 이미지</button>
+        <button class="et-doc" title="포커스된 파일 링크 교체 / 포커스된 블록에 파일 링크 삽입">+ 파일</button>
         <button class="et-discard" title="변경 취소하고 새로고침">취소</button>
         <button class="et-save" title="변경사항을 저장하고 커밋·푸시">저장 → 배포</button>
     `;
+
+    /* Image slots: clickable areas that get their background replaced with an uploaded image. */
+    const IMAGE_SLOT_SELECTORS = [
+        ".port-image",
+        ".f-cover",
+        ".f-detail-file",
+        ".f-file-preview",
+        ".letter-figure",
+        ".cover-hero figure",
+        ".featured-sub-visual"
+    ];
+
+    /* File (document) slots: anchors that point to downloadable files. */
+    const FILE_SLOT_SELECTORS = [
+        ".port-file",
+        ".f-file-chip",
+        ".f-file-link",
+        "a[data-file]"
+    ];
+
+    const BADGE_MAP = {
+        pdf: "pf-pdf",
+        xls: "pf-xlsx",
+        xlsx: "pf-xlsx",
+        ppt: "pf-pptx",
+        pptx: "pf-pptx",
+        hwp: "pf-hwp",
+        hwpx: "pf-hwp",
+        doc: "pf-doc",
+        docx: "pf-doc",
+        txt: "pf-txt"
+    };
+    const BADGE_CLASSES = new Set(Object.values(BADGE_MAP));
+
+    /* Track the last contenteditable element the user clicked/focused
+       — we insert images into it when the toolbar button is pressed. */
+    let lastFocused = null;
+    /* If set, next upload replaces this element's contents instead of inserting. */
+    let pendingSlot = null;
+    /* Upload mode: "image" or "doc" — decides which file input opens and how result is applied. */
+    let pendingMode = "image";
+    let dirtyRef = { value: false };
 
     const activate = () => {
         const seen = new Set();
@@ -145,7 +232,195 @@
                 el.setAttribute("spellcheck", "false");
             });
         });
+
+        /* Mark every image slot so user can click to upload/replace. */
+        const slotSeen = new Set();
+        IMAGE_SLOT_SELECTORS.forEach((sel) => {
+            document.querySelectorAll(sel).forEach((el) => {
+                if (slotSeen.has(el)) return;
+                if (el.closest("#edit-toolbar")) return;
+                slotSeen.add(el);
+                el.setAttribute("data-image-slot", "true");
+                el.addEventListener("click", (ev) => {
+                    /* Ignore clicks on contenteditable children (e.g. captions). */
+                    if (ev.target !== el && ev.target.closest("[data-edit-on]")) return;
+                    pendingSlot = el;
+                    pendingMode = "image";
+                    imageInput.click();
+                });
+            });
+        });
+
+        /* Existing <img> elements — clicking one replaces its src. */
+        document.querySelectorAll("img").forEach((img) => {
+            if (img.closest("#edit-toolbar")) return;
+            img.setAttribute("data-edit-img", "true");
+            img.addEventListener("click", (ev) => {
+                ev.stopPropagation();
+                pendingSlot = img;
+                pendingMode = "image";
+                imageInput.click();
+            });
+        });
+
+        /* File slots: clicking a file-link anchor opens a file picker to replace it. */
+        const fileSeen = new Set();
+        FILE_SLOT_SELECTORS.forEach((sel) => {
+            document.querySelectorAll(sel).forEach((el) => {
+                if (fileSeen.has(el)) return;
+                if (el.closest("#edit-toolbar")) return;
+                fileSeen.add(el);
+                el.setAttribute("data-file-slot", "true");
+                el.addEventListener("click", (ev) => {
+                    /* Prevent the anchor from navigating in edit mode. */
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    pendingSlot = el;
+                    pendingMode = "doc";
+                    docInput.click();
+                });
+            });
+        });
     };
+
+    /* Hidden file inputs + upload helper. Created once, reused. */
+    const imageInput = document.createElement("input");
+    imageInput.type = "file";
+    imageInput.accept = "image/*";
+    imageInput.style.display = "none";
+    document.documentElement.appendChild(imageInput);
+
+    const docInput = document.createElement("input");
+    docInput.type = "file";
+    docInput.accept = ".pdf,.hwp,.hwpx,.ppt,.pptx,.xls,.xlsx,.doc,.docx,.txt";
+    docInput.style.display = "none";
+    document.documentElement.appendChild(docInput);
+
+    const uploadFile = async (file) => {
+        const buf = await file.arrayBuffer();
+        const res = await fetch("/upload", {
+            method: "POST",
+            headers: {
+                "Content-Type": file.type || "application/octet-stream",
+                "X-Filename": encodeURIComponent(file.name)
+            },
+            body: buf
+        });
+        return res.json();
+    };
+
+    const extOf = (name) => {
+        const m = String(name).toLowerCase().match(/\.([a-z0-9]+)$/);
+        return m ? m[1] : "";
+    };
+
+    const applyImage = (uploadedPath, originalName) => {
+        if (pendingSlot instanceof HTMLImageElement) {
+            pendingSlot.src = uploadedPath;
+            return;
+        }
+        if (pendingSlot && pendingSlot.hasAttribute("data-image-slot")) {
+            /* Replace slot contents with a cover-fit image, stripping any placeholder text. */
+            pendingSlot.innerHTML = `<img src="${uploadedPath}" alt="${originalName}" data-edit-img="true" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;">`;
+            const injected = pendingSlot.querySelector("img");
+            if (injected) {
+                injected.addEventListener("click", (ev) => {
+                    ev.stopPropagation();
+                    pendingSlot = injected;
+                    pendingMode = "image";
+                    imageInput.click();
+                });
+            }
+            return;
+        }
+        if (lastFocused) {
+            const img = document.createElement("img");
+            img.src = uploadedPath;
+            img.alt = originalName;
+            img.setAttribute("data-edit-img", "true");
+            img.style.maxWidth = "100%";
+            img.style.display = "block";
+            img.style.margin = "12px 0";
+            lastFocused.appendChild(img);
+            return;
+        }
+        alert("이미지를 삽입할 블록을 먼저 클릭하세요.\n또는 이미지 영역(점선 박스)을 클릭해서 교체하세요.");
+    };
+
+    const applyDoc = (uploadedPath, originalName) => {
+        const ext = extOf(originalName);
+        const badgeClass = BADGE_MAP[ext] || "pf-doc";
+
+        const setAnchor = (a) => {
+            a.setAttribute("href", uploadedPath);
+            a.setAttribute("download", originalName);
+            a.setAttribute("target", "_blank");
+            a.setAttribute("rel", "noopener");
+            a.setAttribute("data-file", originalName);
+            /* Update badge class if present */
+            const badge = a.querySelector(".pf-badge");
+            if (badge) {
+                BADGE_CLASSES.forEach((c) => badge.classList.remove(c));
+                badge.classList.add(badgeClass);
+                badge.textContent = ext.toUpperCase();
+            }
+            /* Update file name text if present */
+            const nameEl = a.querySelector(".pf-name, .f-file-name");
+            if (nameEl) nameEl.textContent = originalName;
+        };
+
+        if (pendingSlot instanceof HTMLAnchorElement) {
+            setAnchor(pendingSlot);
+            return;
+        }
+        if (lastFocused) {
+            const a = document.createElement("a");
+            a.textContent = originalName;
+            a.className = "link";
+            setAnchor(a);
+            lastFocused.appendChild(document.createTextNode(" "));
+            lastFocused.appendChild(a);
+            return;
+        }
+        alert("파일 링크를 교체할 기존 파일 칩을 클릭하거나,\n링크를 삽입할 텍스트 블록을 먼저 클릭하세요.");
+    };
+
+    const handleUpload = async (file, mode) => {
+        if (!file) return;
+        setStatus(`uploading ${file.name}…`);
+        try {
+            const data = await uploadFile(file);
+            if (!data.ok) {
+                setStatus("upload failed", true);
+                alert("업로드 실패: " + (data.error || "unknown"));
+                return;
+            }
+            if (mode === "image") {
+                applyImage(data.path, file.name);
+            } else {
+                applyDoc(data.path, file.name);
+            }
+            dirtyRef.value = true;
+            setStatus(`added ${file.name.slice(0, 18)}… · save to deploy`);
+        } catch (err) {
+            setStatus("upload error", true);
+            console.error(err);
+            alert("업로드 중 오류: " + err.message);
+        } finally {
+            pendingSlot = null;
+        }
+    };
+
+    imageInput.addEventListener("change", (e) => {
+        const f = e.target.files[0];
+        e.target.value = "";
+        handleUpload(f, "image");
+    });
+    docInput.addEventListener("change", (e) => {
+        const f = e.target.files[0];
+        e.target.value = "";
+        handleUpload(f, "doc");
+    });
 
     const setStatus = (text, isErr) => {
         const s = toolbar.querySelector("#et-status");
@@ -163,8 +438,21 @@
             el.removeAttribute("data-edit-on");
             el.removeAttribute("spellcheck");
         });
+        clone.querySelectorAll("[data-image-slot]").forEach((el) => {
+            el.removeAttribute("data-image-slot");
+        });
+        clone.querySelectorAll("[data-edit-img]").forEach((el) => {
+            el.removeAttribute("data-edit-img");
+        });
+        clone.querySelectorAll("[data-file-slot]").forEach((el) => {
+            el.removeAttribute("data-file-slot");
+        });
         const toolbarClone = clone.querySelector("#edit-toolbar");
         if (toolbarClone) toolbarClone.remove();
+        /* Hidden file inputs appended to <html> — strip them. */
+        clone.querySelectorAll('input[type="file"]').forEach((el) => {
+            if (el.style && el.style.display === "none") el.remove();
+        });
         return "<!DOCTYPE html>\n" + clone.outerHTML;
     };
 
@@ -210,6 +498,23 @@
         document.body.appendChild(toolbar);
         toolbar.querySelector(".et-save").addEventListener("click", save);
         toolbar.querySelector(".et-discard").addEventListener("click", discard);
+        toolbar.querySelector(".et-image").addEventListener("click", () => {
+            pendingSlot = null;
+            pendingMode = "image";
+            imageInput.click();
+        });
+        toolbar.querySelector(".et-doc").addEventListener("click", () => {
+            pendingSlot = null;
+            pendingMode = "doc";
+            docInput.click();
+        });
+
+        /* Track the last focused editable block so "+ 이미지/파일" buttons know
+           where to insert when no slot is explicitly selected. */
+        document.addEventListener("focusin", (e) => {
+            const editable = e.target.closest("[data-edit-on]");
+            if (editable) lastFocused = editable;
+        });
 
         /* Keyboard shortcut: Ctrl/Cmd + S */
         document.addEventListener("keydown", (e) => {
@@ -220,15 +525,14 @@
         });
 
         /* Warn on unload if there are edits */
-        let dirty = false;
         document.addEventListener("input", (e) => {
             if (e.target.closest("[data-edit-on]")) {
-                dirty = true;
+                dirtyRef.value = true;
                 setStatus("dirty");
             }
         }, true);
         window.addEventListener("beforeunload", (e) => {
-            if (dirty) {
+            if (dirtyRef.value) {
                 e.preventDefault();
                 e.returnValue = "";
             }
