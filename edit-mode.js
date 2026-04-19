@@ -169,6 +169,35 @@
                 outline: 2px dashed rgba(29, 78, 216, 0.55);
                 outline-offset: 2px;
             }
+            .edit-file-remove {
+                position: absolute;
+                top: -9px;
+                right: -9px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #dc2626;
+                color: #fff;
+                border: 2px solid #fff;
+                font-size: 13px;
+                line-height: 1;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                z-index: 5;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+                font-family: system-ui, -apple-system, sans-serif;
+                font-weight: 700;
+                user-select: none;
+            }
+            [data-file-slot="true"]:hover .edit-file-remove,
+            .edit-file-remove:hover {
+                display: flex;
+            }
+            .edit-file-remove:hover {
+                background: #b91c1c;
+            }
             .edit-drag-over {
                 outline: 2px solid #1D4ED8 !important;
                 outline-offset: 3px;
@@ -348,7 +377,30 @@
                 if (el.closest("#edit-toolbar")) return;
                 fileSeen.add(el);
                 el.setAttribute("data-file-slot", "true");
+
+                /* Inject a remove (×) badge. data-edit-ornament flag causes
+                   cleanForSave to strip the node before serialization so it
+                   never ends up in saved HTML. */
+                if (!el.querySelector(".edit-file-remove")) {
+                    const rm = document.createElement("span");
+                    rm.className = "edit-file-remove";
+                    rm.setAttribute("data-edit-ornament", "true");
+                    rm.setAttribute("role", "button");
+                    rm.setAttribute("aria-label", "파일 항목 삭제");
+                    rm.title = "이 파일 항목 삭제";
+                    rm.textContent = "×";
+                    rm.addEventListener("click", (ev) => {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        if (!confirm("이 파일 항목을 삭제하시겠습니까?")) return;
+                        el.remove();
+                    });
+                    el.appendChild(rm);
+                }
+
                 el.addEventListener("click", (ev) => {
+                    /* Ignore clicks on the remove badge — it has its own handler. */
+                    if (ev.target.closest(".edit-file-remove")) return;
                     /* Prevent the anchor from navigating in edit mode. */
                     ev.preventDefault();
                     ev.stopPropagation();
@@ -865,6 +917,10 @@
         });
         clone.querySelectorAll("[data-file-slot]").forEach((el) => {
             el.removeAttribute("data-file-slot");
+        });
+        /* Remove any edit-only ornaments (×, badges) injected into slots. */
+        clone.querySelectorAll("[data-edit-ornament]").forEach((el) => {
+            el.remove();
         });
         clone.querySelectorAll("[data-edit-drop-bound]").forEach((el) => {
             el.removeAttribute("data-edit-drop-bound");
