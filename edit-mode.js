@@ -180,20 +180,15 @@
 
     /* Image slots: clickable areas that get their background replaced with an uploaded image. */
     const IMAGE_SLOT_SELECTORS = [
-        ".port-image",
-        ".f-cover",
-        ".f-detail-file",
-        ".f-file-preview",
-        ".letter-figure",
-        ".cover-hero figure",
-        ".featured-sub-visual"
+        ".portrait-frame",  /* cover 페이지의 "H" 이니셜 영역 */
+        ".f-cover",         /* Career/Archive/Portfolio 커버 박스 (C01–C04, A01–A04, P01–P04, W01–W02) */
+        ".f-cover-photo"    /* 기존 사진 포함 커버 (이미지 교체용) */
     ];
 
     /* File (document) slots: anchors that point to downloadable files. */
     const FILE_SLOT_SELECTORS = [
-        ".port-file",
-        ".f-file-chip",
-        ".f-file-link",
+        "a.port-file",
+        "a.f-file-chip",
         "a[data-file]"
     ];
 
