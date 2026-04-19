@@ -424,18 +424,36 @@
         return m ? [parseFloat(m[1]), parseFloat(m[2])] : [50, 50];
     };
 
+    const parseScale = (s) => {
+        const m = /scale\(([\d.]+)\)/.exec(String(s || ""));
+        return m ? parseFloat(m[1]) : 1;
+    };
+
     const openImgPopover = (img) => {
         activeImg = img;
         /* Populate controls from current inline styles. */
         const cs = window.getComputedStyle(img);
-        const inlineW = img.style.width || "";
         const slot = isSlotImage(img);
-        const widthPct = inlineW.endsWith("%") ? parseInt(inlineW, 10) : (slot ? 100 : 100);
-        const widthRow = imgEditPopover.querySelector("#iep-width").closest(".iep-row");
-        /* In a slot, width is dictated by slot size — hide the slider there. */
-        widthRow.style.display = slot ? "none" : "";
-        imgEditPopover.querySelector("#iep-width").value = String(Math.max(20, Math.min(100, widthPct || 100)));
-        imgEditPopover.querySelector("#iep-w-val").textContent = imgEditPopover.querySelector("#iep-width").value + "%";
+        const slider = imgEditPopover.querySelector("#iep-width");
+        const widthRow = slider.closest(".iep-row");
+        widthRow.style.display = "";
+        if (slot) {
+            /* Slot images use transform: scale() as a zoom. */
+            slider.min = "100";
+            slider.max = "300";
+            slider.step = "5";
+            const scale = parseScale(img.style.transform);
+            slider.value = String(Math.max(100, Math.min(300, Math.round(scale * 100))));
+        } else {
+            /* Free-standing images use width: %% as direct size. */
+            slider.min = "20";
+            slider.max = "100";
+            slider.step = "5";
+            const inlineW = img.style.width || "";
+            const widthPct = inlineW.endsWith("%") ? parseInt(inlineW, 10) : 100;
+            slider.value = String(Math.max(20, Math.min(100, widthPct || 100)));
+        }
+        imgEditPopover.querySelector("#iep-w-val").textContent = slider.value + "%";
 
         const currentFit = img.style.objectFit || cs.objectFit || "cover";
         imgEditPopover.querySelector("#iep-fit").value = currentFit;
@@ -502,7 +520,9 @@
                 /* Inverse relation: dragging right should reveal the left side. */
                 const nx = Math.max(0, Math.min(100, startX - (dx / rect.width) * 100));
                 const ny = Math.max(0, Math.min(100, startY - (dy / rect.height) * 100));
-                img.style.objectPosition = `${nx.toFixed(1)}% ${ny.toFixed(1)}%`;
+                const pos = `${nx.toFixed(1)}% ${ny.toFixed(1)}%`;
+                img.style.objectPosition = pos;
+                img.style.transformOrigin = pos;
                 dirtyRef.value = true;
             };
             const onUp = () => {
@@ -572,7 +592,7 @@
         }
         if (pendingSlot && pendingSlot.hasAttribute("data-image-slot")) {
             /* Replace slot contents with a cover-fit image, stripping any placeholder text. */
-            pendingSlot.innerHTML = `<img src="${uploadedPath}" alt="${originalName}" data-edit-img="true" style="width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block;border-radius:inherit;">`;
+            pendingSlot.innerHTML = `<img src="${uploadedPath}" alt="${originalName}" data-edit-img="true" style="width:100%;height:100%;object-fit:cover;object-position:50% 50%;transform-origin:50% 50%;display:block;border-radius:inherit;">`;
             const injected = pendingSlot.querySelector("img");
             if (injected) attachImgEditHandlers(injected);
             return;
@@ -772,8 +792,12 @@
         widthInput.addEventListener("input", () => {
             widthVal.textContent = widthInput.value + "%";
             if (!activeImg) return;
-            if (isSlotImage(activeImg)) return;
-            activeImg.style.width = widthInput.value + "%";
+            if (isSlotImage(activeImg)) {
+                const s = Math.max(1, parseInt(widthInput.value, 10) / 100);
+                activeImg.style.transform = `scale(${s.toFixed(2)})`;
+            } else {
+                activeImg.style.width = widthInput.value + "%";
+            }
             dirtyRef.value = true;
             setStatus("dirty");
         });
@@ -790,7 +814,12 @@
             if (!btn || !activeImg) return;
             gridEl.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
             btn.classList.add("active");
-            activeImg.style.objectPosition = btn.getAttribute("data-pos");
+            const pos = btn.getAttribute("data-pos");
+            activeImg.style.objectPosition = pos;
+            if (isSlotImage(activeImg)) {
+                /* Zoom should pivot around the same focal point as object-position. */
+                activeImg.style.transformOrigin = pos;
+            }
             dirtyRef.value = true;
             setStatus("dirty");
         });

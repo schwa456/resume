@@ -544,6 +544,11 @@ strong { font-weight: 600; color: var(--text); }
     border: 1px dashed rgba(15, 15, 14, 0.16);
     border-radius: 12px;
 }
+.portrait-frame:has(img) {
+    overflow: hidden;
+    background: #fff;
+}
+.portrait-frame:has(img)::before { display: none; }
 .portrait-initial {
     font-family: var(--font-serif);
     font-size: 200px;
@@ -902,6 +907,11 @@ strong { font-weight: 600; color: var(--text); }
     border: 1px dashed rgba(15, 15, 14, 0.15);
     border-radius: 10px;
 }
+.rs-portrait:has(img) {
+    overflow: hidden;
+    background: #fff;
+}
+.rs-portrait:has(img)::before { display: none; }
 .rs-portrait span {
     font-family: var(--font-serif);
     font-size: 140px;
