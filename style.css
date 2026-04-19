@@ -2173,28 +2173,9 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
        was read as a "black frame" around the photo. Number/tag now carry
        the visual inset via margins. */
     padding: 0;
-    /* Let the photo decide its own height — lock width, drop the 4/3 ratio
-       so the container follows the image's natural aspect. */
-    aspect-ratio: auto;
-}
-.f-cover.has-photo .slot-photo,
-.f-cover.has-photo .port-photo {
-    position: relative;
-    inset: auto;
-    width: 100%;
-    height: auto;
-    object-fit: contain;
 }
 .f-case-port .f-cover:has(.port-photo:not([src=""])) {
     background: transparent;
-    aspect-ratio: auto;
-}
-.f-case-port .f-cover:has(.port-photo:not([src=""])) .port-photo {
-    position: relative;
-    inset: auto;
-    width: 100%;
-    height: auto;
-    object-fit: contain;
 }
 .f-cover.has-photo .f-cover-num,
 .f-cover.has-photo .f-cover-tag {
@@ -2315,6 +2296,23 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
 .pf-pdf  { background: #D93025; }
 .pf-xlsx { background: #107C41; }
 .pf-pptx { background: #C43E1C; }
+.pf-doc  { background: #185ABD; }
+.pf-txt  { background: #4B5563; }
+/* Hangul (.hwp/.hwpx) badge — mirrors Tools section's pill-mark-hwp:
+   "한" glyph in serif weight, blue field. Hides whatever text the anchor
+   carries so both '한' and 'HWP' markup render consistently. */
+.pf-hwp {
+    background: #0073E6;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 0;
+}
+.pf-hwp::before {
+    content: "한";
+    font-size: 11px;
+    letter-spacing: 0;
+    color: #fff;
+}
 .pf-name {
     font-family: var(--font-mono);
     font-size: 11px;

@@ -356,6 +356,41 @@
         return Array.from(t).indexOf("Files") !== -1;
     };
 
+    /* Wire a single anchor as a file slot: outline on hover, click opens the
+       doc picker to replace it, × badge deletes it. Safe to re-run — guards
+       against double-binding. */
+    const attachFileSlot = (el) => {
+        if (!el || el.dataset.fileSlotBound === "1") return;
+        if (el.closest("#edit-toolbar")) return;
+        el.dataset.fileSlotBound = "1";
+        el.setAttribute("data-file-slot", "true");
+        if (!el.querySelector(".edit-file-remove")) {
+            const rm = document.createElement("span");
+            rm.className = "edit-file-remove";
+            rm.setAttribute("data-edit-ornament", "true");
+            rm.setAttribute("role", "button");
+            rm.setAttribute("aria-label", "파일 항목 삭제");
+            rm.title = "이 파일 항목 삭제";
+            rm.textContent = "×";
+            rm.addEventListener("click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!confirm("이 파일 항목을 삭제하시겠습니까?")) return;
+                el.remove();
+            });
+            el.appendChild(rm);
+        }
+        el.addEventListener("click", (ev) => {
+            if (ev.target.closest(".edit-file-remove")) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            pendingSlot = el;
+            pendingMode = "doc";
+            docInput.click();
+        });
+        bindDropTarget(el, { slot: el, mode: "doc" });
+    };
+
     const bindDropTarget = (el, opts) => {
         if (el.dataset.editDropBound === "1") return;
         el.dataset.editDropBound = "1";
@@ -434,46 +469,8 @@
         });
 
         /* File slots: clicking a file-link anchor opens a file picker to replace it. */
-        const fileSeen = new Set();
         FILE_SLOT_SELECTORS.forEach((sel) => {
-            document.querySelectorAll(sel).forEach((el) => {
-                if (fileSeen.has(el)) return;
-                if (el.closest("#edit-toolbar")) return;
-                fileSeen.add(el);
-                el.setAttribute("data-file-slot", "true");
-
-                /* Inject a remove (×) badge. data-edit-ornament flag causes
-                   cleanForSave to strip the node before serialization so it
-                   never ends up in saved HTML. */
-                if (!el.querySelector(".edit-file-remove")) {
-                    const rm = document.createElement("span");
-                    rm.className = "edit-file-remove";
-                    rm.setAttribute("data-edit-ornament", "true");
-                    rm.setAttribute("role", "button");
-                    rm.setAttribute("aria-label", "파일 항목 삭제");
-                    rm.title = "이 파일 항목 삭제";
-                    rm.textContent = "×";
-                    rm.addEventListener("click", (ev) => {
-                        ev.preventDefault();
-                        ev.stopPropagation();
-                        if (!confirm("이 파일 항목을 삭제하시겠습니까?")) return;
-                        el.remove();
-                    });
-                    el.appendChild(rm);
-                }
-
-                el.addEventListener("click", (ev) => {
-                    /* Ignore clicks on the remove badge — it has its own handler. */
-                    if (ev.target.closest(".edit-file-remove")) return;
-                    /* Prevent the anchor from navigating in edit mode. */
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    pendingSlot = el;
-                    pendingMode = "doc";
-                    docInput.click();
-                });
-                bindDropTarget(el, { slot: el, mode: "doc" });
-            });
+            document.querySelectorAll(sel).forEach(attachFileSlot);
         });
 
         /* Tool slots (Resume · Tools grid): delete-only. No click-to-replace. */
@@ -539,6 +536,50 @@
                 });
                 container.appendChild(add);
             }
+        });
+
+        /* Attachment strips (.port-files-strip, .f-files-strip): + file 추가
+           button mirrors the "+ 툴 추가" pattern. Click opens the doc picker;
+           the uploaded file becomes a new .port-file / .f-file-chip inserted
+           just before the add button. */
+        document.querySelectorAll(".port-files-strip, .f-files-strip").forEach((strip) => {
+            if (strip.closest("#edit-toolbar")) return;
+            if (strip.querySelector(":scope > .edit-file-add")) return;
+            const add = document.createElement("button");
+            add.type = "button";
+            add.className = "edit-tool-add edit-file-add";
+            add.setAttribute("data-edit-ornament", "true");
+            add.textContent = "+ 파일 추가";
+            add.title = "새 첨부 파일 추가";
+            add.addEventListener("click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                /* Build a bare anchor shaped like the neighbors, then hand it
+                   to the doc picker as the pending slot. applyDoc will fill
+                   href, download, badge, name once upload finishes. */
+                const isFFiles = strip.classList.contains("f-files-strip");
+                const a = document.createElement("a");
+                a.className = isFFiles ? "f-file-chip" : "port-file";
+                a.setAttribute("href", "#");
+                a.setAttribute("target", "_blank");
+                a.setAttribute("rel", "noopener");
+                const badge = document.createElement("span");
+                badge.className = "pf-badge";
+                badge.setAttribute("aria-hidden", "true");
+                const name = document.createElement("span");
+                name.className = isFFiles ? "f-file-label" : "pf-name";
+                name.textContent = "(업로드 중…)";
+                a.appendChild(badge);
+                a.appendChild(name);
+                strip.insertBefore(a, add);
+                /* Wire up delete/replace immediately so the placeholder chip
+                   can be dismissed even if the user cancels the file picker. */
+                attachFileSlot(a);
+                pendingSlot = a;
+                pendingMode = "doc";
+                docInput.click();
+            });
+            strip.appendChild(add);
         });
 
         /* f-cover-tag drag: attach a small handle that repositions the pill
@@ -768,12 +809,14 @@
         const widthRow = slider.closest(".iep-row");
         widthRow.style.display = "";
         if (slot) {
-            /* Slot images use transform: scale() as a zoom. */
-            slider.min = "100";
+            /* Slot images use transform: scale() as a zoom.
+               Allow 50%–300% so the image can shrink inside its frame as
+               well as zoom in. */
+            slider.min = "50";
             slider.max = "300";
             slider.step = "5";
             const scale = parseScale(img.style.transform);
-            slider.value = String(Math.max(100, Math.min(300, Math.round(scale * 100))));
+            slider.value = String(Math.max(50, Math.min(300, Math.round(scale * 100))));
         } else {
             /* Free-standing images use width: %% as direct size. */
             slider.min = "20";
@@ -843,9 +886,12 @@
             openImgPopover(img);
         });
 
-        /* Drag to reposition: only meaningful for cover/contain inside a slot.
-           Adjusts object-position as percentages based on cursor movement
-           relative to the image box. */
+        /* Drag to reposition: only meaningful inside a slot. Adjusts
+           object-position as percentages based on cursor movement. For
+           object-fit:cover the image is larger than the frame, so drag
+           direction is inverted (drag right → reveal left). For
+           contain/none the image can be smaller than the frame, so drag
+           direction follows the cursor (drag right → image moves right). */
         img.addEventListener("mousedown", (ev) => {
             if (ev.button !== 0) return;
             if (!isSlotImage(img)) return;
@@ -859,9 +905,10 @@
                 const dx = e.clientX - originX;
                 const dy = e.clientY - originY;
                 if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
-                /* Inverse relation: dragging right should reveal the left side. */
-                const nx = Math.max(0, Math.min(100, startX - (dx / rect.width) * 100));
-                const ny = Math.max(0, Math.min(100, startY - (dy / rect.height) * 100));
+                const fit = img.style.objectFit || window.getComputedStyle(img).objectFit;
+                const sign = (fit === "contain" || fit === "none" || fit === "scale-down") ? 1 : -1;
+                const nx = Math.max(0, Math.min(100, startX + sign * (dx / rect.width) * 100));
+                const ny = Math.max(0, Math.min(100, startY + sign * (dy / rect.height) * 100));
                 const pos = `${nx.toFixed(1)}% ${ny.toFixed(1)}%`;
                 img.style.objectPosition = pos;
                 img.style.transformOrigin = pos;
@@ -1025,6 +1072,9 @@
 
         if (pendingSlot instanceof HTMLAnchorElement) {
             setAnchor(pendingSlot);
+            /* Anchors created fresh from "+ 파일 추가" start without file-slot
+               bindings; attach now so the new chip is clickable/deletable. */
+            attachFileSlot(pendingSlot);
             return;
         }
         if (lastFocused) {
@@ -1251,7 +1301,9 @@
             widthVal.textContent = widthInput.value + "%";
             if (!activeImg) return;
             if (isSlotImage(activeImg)) {
-                const s = Math.max(1, parseInt(widthInput.value, 10) / 100);
+                /* Allow 0.5x–3x: shrinking below 1 keeps the image inside
+                   the frame with empty padding around it. */
+                const s = Math.max(0.5, parseInt(widthInput.value, 10) / 100);
                 activeImg.style.transform = `scale(${s.toFixed(2)})`;
             } else {
                 activeImg.style.width = widthInput.value + "%";
