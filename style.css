@@ -1362,6 +1362,7 @@ strong { font-weight: 600; color: var(--text); }
 .f-files-strip {
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 8px;
     margin-top: 4px;
 }
@@ -1369,7 +1370,12 @@ strong { font-weight: 600; color: var(--text); }
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 12px 6px 6px;
+    /* Shrink to content — the pill hugs the badge + label instead of
+       stretching to the strip's full width. */
+    width: fit-content;
+    max-width: 100%;
+    flex: 0 0 auto;
+    padding: 5px 12px 5px 5px;
     border: 1px solid var(--line);
     background: var(--bg-card);
     border-radius: 99px;

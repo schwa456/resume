@@ -169,6 +169,16 @@
                 outline: 2px dashed rgba(29, 78, 216, 0.55);
                 outline-offset: 2px;
             }
+            [data-tool-slot="true"] {
+                position: relative;
+            }
+            [data-tool-slot="true"]:hover {
+                outline: 2px dashed rgba(29, 78, 216, 0.55);
+                outline-offset: 2px;
+            }
+            [data-tool-slot="true"]:hover .edit-file-remove {
+                display: flex;
+            }
             .edit-file-remove {
                 position: absolute;
                 top: -9px;
@@ -410,6 +420,27 @@
                 });
                 bindDropTarget(el, { slot: el, mode: "doc" });
             });
+        });
+
+        /* Tool slots (Resume · Tools grid): delete-only. No click-to-replace. */
+        document.querySelectorAll(".tools-grid .tool").forEach((el) => {
+            if (el.closest("#edit-toolbar")) return;
+            if (el.querySelector(":scope > .edit-file-remove")) return;
+            el.setAttribute("data-tool-slot", "true");
+            const rm = document.createElement("span");
+            rm.className = "edit-file-remove";
+            rm.setAttribute("data-edit-ornament", "true");
+            rm.setAttribute("role", "button");
+            rm.setAttribute("aria-label", "이 툴 항목 삭제");
+            rm.title = "이 툴 항목 삭제";
+            rm.textContent = "×";
+            rm.addEventListener("click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!confirm("이 툴 항목을 삭제하시겠습니까?")) return;
+                el.remove();
+            });
+            el.appendChild(rm);
         });
     };
 
@@ -826,13 +857,18 @@
             a.setAttribute("target", "_blank");
             a.setAttribute("rel", "noopener");
             a.setAttribute("data-file", originalName);
-            /* Update badge class if present */
-            const badge = a.querySelector(".pf-badge");
-            if (badge) {
-                BADGE_CLASSES.forEach((c) => badge.classList.remove(c));
-                badge.classList.add(badgeClass);
-                badge.textContent = ext.toUpperCase();
+            /* Ensure a .pf-badge exists — create one if the anchor doesn't have
+               it yet (e.g., a brand-new link inserted into a text block). */
+            let badge = a.querySelector(".pf-badge");
+            if (!badge) {
+                badge = document.createElement("span");
+                badge.className = "pf-badge";
+                badge.setAttribute("aria-hidden", "true");
+                a.insertBefore(badge, a.firstChild);
             }
+            BADGE_CLASSES.forEach((c) => badge.classList.remove(c));
+            badge.classList.add(badgeClass);
+            badge.textContent = ext.toUpperCase();
             /* Update file name text if present */
             const nameEl = a.querySelector(".pf-name, .f-file-name");
             if (nameEl) nameEl.textContent = originalName;
@@ -917,6 +953,9 @@
         });
         clone.querySelectorAll("[data-file-slot]").forEach((el) => {
             el.removeAttribute("data-file-slot");
+        });
+        clone.querySelectorAll("[data-tool-slot]").forEach((el) => {
+            el.removeAttribute("data-tool-slot");
         });
         /* Remove any edit-only ornaments (×, badges) injected into slots. */
         clone.querySelectorAll("[data-edit-ornament]").forEach((el) => {
