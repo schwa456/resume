@@ -800,6 +800,15 @@
         return m ? parseFloat(m[1]) : 1;
     };
 
+    const parseTranslate = (s) => {
+        const m = /translate\((-?[\d.]+)px\s*,\s*(-?[\d.]+)px\)/.exec(String(s || ""));
+        return m ? [parseFloat(m[1]), parseFloat(m[2])] : [0, 0];
+    };
+
+    const composeTransform = (tx, ty, scale) => {
+        return `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${scale.toFixed(2)})`;
+    };
+
     const openImgPopover = (img) => {
         activeImg = img;
         /* Populate controls from current inline styles. */
@@ -886,17 +895,15 @@
             openImgPopover(img);
         });
 
-        /* Drag to reposition: only meaningful inside a slot. Adjusts
-           object-position as percentages based on cursor movement. For
-           object-fit:cover the image is larger than the frame, so drag
-           direction is inverted (drag right → reveal left). For
-           contain/none the image can be smaller than the frame, so drag
-           direction follows the cursor (drag right → image moves right). */
+        /* Drag to reposition: only meaningful inside a slot. Moves the image
+           box itself by mutating `transform: translate(Xpx, Ypx)` — the image
+           follows the cursor directly (drag right → image moves right),
+           regardless of object-fit. Zoom (scale) is preserved separately. */
         img.addEventListener("mousedown", (ev) => {
             if (ev.button !== 0) return;
             if (!isSlotImage(img)) return;
-            const rect = img.getBoundingClientRect();
-            const [startX, startY] = parsePos(img.style.objectPosition || "50% 50%");
+            const [startTx, startTy] = parseTranslate(img.style.transform);
+            const scale = parseScale(img.style.transform);
             const originX = ev.clientX;
             const originY = ev.clientY;
             let moved = false;
@@ -905,13 +912,10 @@
                 const dx = e.clientX - originX;
                 const dy = e.clientY - originY;
                 if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
-                const fit = img.style.objectFit || window.getComputedStyle(img).objectFit;
-                const sign = (fit === "contain" || fit === "none" || fit === "scale-down") ? 1 : -1;
-                const nx = Math.max(0, Math.min(100, startX + sign * (dx / rect.width) * 100));
-                const ny = Math.max(0, Math.min(100, startY + sign * (dy / rect.height) * 100));
-                const pos = `${nx.toFixed(1)}% ${ny.toFixed(1)}%`;
-                img.style.objectPosition = pos;
-                img.style.transformOrigin = pos;
+                const tx = startTx + dx;
+                const ty = startTy + dy;
+                img.style.transform = composeTransform(tx, ty, scale);
+                img.style.transformOrigin = "50% 50%";
                 dirtyRef.value = true;
             };
             const onUp = () => {
@@ -1301,10 +1305,12 @@
             widthVal.textContent = widthInput.value + "%";
             if (!activeImg) return;
             if (isSlotImage(activeImg)) {
-                /* Allow 0.5x–3x: shrinking below 1 keeps the image inside
-                   the frame with empty padding around it. */
+                /* Allow 0.5x–3x. Preserve existing translate so zoom doesn't
+                   snap the image back to origin; pivot around the center. */
                 const s = Math.max(0.5, parseInt(widthInput.value, 10) / 100);
-                activeImg.style.transform = `scale(${s.toFixed(2)})`;
+                const [tx, ty] = parseTranslate(activeImg.style.transform);
+                activeImg.style.transform = composeTransform(tx, ty, s);
+                activeImg.style.transformOrigin = "50% 50%";
             } else {
                 activeImg.style.width = widthInput.value + "%";
             }
@@ -1340,8 +1346,12 @@
             const pos = btn.getAttribute("data-pos");
             activeImg.style.objectPosition = pos;
             if (isSlotImage(activeImg)) {
-                /* Zoom should pivot around the same focal point as object-position. */
-                activeImg.style.transformOrigin = pos;
+                /* Grid sets the object-position focal point; reset the
+                   drag-accumulated translate so the image snaps to the
+                   chosen region. Zoom (scale) and center origin stay. */
+                const scale = parseScale(activeImg.style.transform);
+                activeImg.style.transform = composeTransform(0, 0, scale);
+                activeImg.style.transformOrigin = "50% 50%";
             }
             dirtyRef.value = true;
             setStatus("dirty");
