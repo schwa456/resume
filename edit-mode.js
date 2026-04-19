@@ -181,6 +181,7 @@
     /* Image slots: clickable areas that get their background replaced with an uploaded image. */
     const IMAGE_SLOT_SELECTORS = [
         ".portrait-frame",  /* cover 페이지의 "H" 이니셜 영역 */
+        ".rs-portrait",     /* 이력서 프로필 사진 슬롯 (현재 H 이니셜 표시) */
         ".f-cover",         /* Career/Archive/Portfolio 커버 박스 (C01–C04, A01–A04, P01–P04, W01–W02) */
         ".f-cover-photo"    /* 기존 사진 포함 커버 (이미지 교체용) */
     ];
