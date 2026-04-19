@@ -1909,8 +1909,8 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
 .f-case .cc-link { margin-top: 18px; display: inline-flex; }
 
 .end-mark {
-    margin-top: 64px;
-    padding-top: 40px;
+    margin-top: 28px;
+    padding-top: 18px;
     text-align: center;
     font-family: var(--font-serif);
     color: var(--text-muted);
@@ -1921,15 +1921,15 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
     font-size: 10.5px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    margin: 4px 0;
+    margin: 2px 0;
 }
 .end-mark p {
-    font-size: 32px;
+    font-size: 28px;
     font-style: italic;
     font-weight: 400;
     color: var(--text);
     letter-spacing: -0.02em;
-    margin: 20px 0;
+    margin: 10px 0;
 }
 
 /* ==========================================================
@@ -1938,14 +1938,15 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
 .closing {
     max-width: var(--content-max);
     margin: 0 auto;
-    padding: 0 var(--pad-x) 80px;
+    padding: 0 var(--pad-x) 20px;
+    text-align: center;
 }
 .closing-divider {
     border: none;
     height: 1px;
     background: var(--line);
     width: 64px;
-    margin: 24px auto 48px;
+    margin: 20px auto 28px;
     position: relative;
 }
 .closing-divider::before {
@@ -1967,7 +1968,7 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 14px;
     padding: 0 20px;
     text-align: center;
 }
@@ -2744,8 +2745,10 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
    ========================================================== */
 .site-copyright {
     display: block;
+    max-width: var(--content-max);
+    margin: 0 auto;
     text-align: center;
-    padding: 22px 20px 36px;
+    padding: 10px var(--pad-x) 24px;
     font-family: var(--font-mono);
     font-size: 11px;
     letter-spacing: 0.04em;
@@ -2754,7 +2757,7 @@ a.cc-link-only b { transition: transform 0.3s var(--ease); }
 }
 @media print {
     .site-copyright {
-        padding: 8pt 0;
+        padding: 6pt 0;
         font-size: 8pt;
         color: #555 !important;
     }
