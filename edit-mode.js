@@ -169,6 +169,36 @@
                 outline: 2px dashed rgba(29, 78, 216, 0.55);
                 outline-offset: 2px;
             }
+            .edit-drag-over {
+                outline: 2px solid #1D4ED8 !important;
+                outline-offset: 3px;
+                background-color: rgba(29, 78, 216, 0.08) !important;
+                transition: outline 0.1s ease, background-color 0.1s ease;
+            }
+            #edit-drop-veil {
+                position: fixed;
+                inset: 0;
+                z-index: 99997;
+                background: rgba(29, 78, 216, 0.06);
+                border: 3px dashed rgba(29, 78, 216, 0.45);
+                pointer-events: none;
+                display: none;
+            }
+            #edit-drop-veil.is-on { display: block; }
+            #edit-drop-veil::after {
+                content: "파일을 드롭해서 업로드";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #0f0f0e;
+                color: #fff;
+                padding: 10px 18px;
+                border-radius: 99px;
+                font-family: "JetBrains Mono", ui-monospace, monospace;
+                font-size: 12px;
+                letter-spacing: 0.05em;
+            }
         </style>
         <span class="et-label">✎ Edit Mode</span>
         <span class="et-status" id="et-status">idle</span>
@@ -216,6 +246,57 @@
     let pendingMode = "image";
     let dirtyRef = { value: false };
 
+    /* ---------- Drag-and-drop upload helpers ---------- */
+    const IMG_EXTS = new Set(["jpg", "jpeg", "png", "webp", "gif", "svg"]);
+
+    const detectMode = (file) => {
+        if (file && file.type && file.type.startsWith("image/")) return "image";
+        const m = String((file && file.name) || "").toLowerCase().match(/\.([a-z0-9]+)$/);
+        return m && IMG_EXTS.has(m[1]) ? "image" : "doc";
+    };
+
+    const carriesFiles = (e) => {
+        if (!e.dataTransfer) return false;
+        const t = e.dataTransfer.types;
+        if (!t) return false;
+        /* DOMStringList doesn't have .includes() in all browsers */
+        return Array.from(t).indexOf("Files") !== -1;
+    };
+
+    const bindDropTarget = (el, opts) => {
+        if (el.dataset.editDropBound === "1") return;
+        el.dataset.editDropBound = "1";
+        el.addEventListener("dragenter", (e) => {
+            if (!carriesFiles(e)) return;
+            e.preventDefault();
+            e.stopPropagation();
+            el.classList.add("edit-drag-over");
+        });
+        el.addEventListener("dragover", (e) => {
+            if (!carriesFiles(e)) return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.dataTransfer.dropEffect = "copy";
+        });
+        el.addEventListener("dragleave", (e) => {
+            /* Only clear when actually leaving the element (not entering a child). */
+            if (el.contains(e.relatedTarget)) return;
+            el.classList.remove("edit-drag-over");
+        });
+        el.addEventListener("drop", (e) => {
+            if (!carriesFiles(e)) return;
+            e.preventDefault();
+            e.stopPropagation();
+            el.classList.remove("edit-drag-over");
+            const file = e.dataTransfer.files && e.dataTransfer.files[0];
+            if (!file) return;
+            pendingSlot = opts.slot || null;
+            const mode = opts.mode === "auto" ? detectMode(file) : opts.mode;
+            pendingMode = mode;
+            handleUpload(file, mode);
+        });
+    };
+
     const activate = () => {
         const seen = new Set();
         EDITABLE_SELECTORS.forEach((sel) => {
@@ -226,6 +307,8 @@
                 el.setAttribute("contenteditable", "true");
                 el.setAttribute("data-edit-on", "true");
                 el.setAttribute("spellcheck", "false");
+                /* Drops on a text block insert an image/file at the focused location. */
+                bindDropTarget(el, { slot: null, mode: "auto" });
             });
         });
 
@@ -244,6 +327,7 @@
                     pendingMode = "image";
                     imageInput.click();
                 });
+                bindDropTarget(el, { slot: el, mode: "image" });
             });
         });
 
@@ -272,6 +356,7 @@
                     pendingMode = "doc";
                     docInput.click();
                 });
+                bindDropTarget(el, { slot: el, mode: "doc" });
             });
         });
     };
@@ -715,10 +800,19 @@
         clone.querySelectorAll("[data-file-slot]").forEach((el) => {
             el.removeAttribute("data-file-slot");
         });
+        clone.querySelectorAll("[data-edit-drop-bound]").forEach((el) => {
+            el.removeAttribute("data-edit-drop-bound");
+            if (el.dataset) delete el.dataset.editDropBound;
+        });
+        clone.querySelectorAll(".edit-drag-over").forEach((el) => {
+            el.classList.remove("edit-drag-over");
+        });
         const toolbarClone = clone.querySelector("#edit-toolbar");
         if (toolbarClone) toolbarClone.remove();
         const popClone = clone.querySelector("#img-edit-pop");
         if (popClone) popClone.remove();
+        const veilClone = clone.querySelector("#edit-drop-veil");
+        if (veilClone) veilClone.remove();
         /* Hidden file inputs appended to <html> — strip them. */
         clone.querySelectorAll('input[type="file"]').forEach((el) => {
             if (el.style && el.style.display === "none") el.remove();
@@ -767,6 +861,53 @@
         activate();
         document.body.appendChild(toolbar);
         document.body.appendChild(imgEditPopover);
+
+        /* Global drop veil: visual hint when user is dragging a file over the page.
+           Also swallows drops that land outside any bound slot so the browser
+           doesn't navigate away to the file. */
+        const dropVeil = document.createElement("div");
+        dropVeil.id = "edit-drop-veil";
+        document.body.appendChild(dropVeil);
+
+        /* Depth counting is fragile because slot handlers stopPropagation,
+           so we use a debounced hide timer instead: each dragover keeps the
+           veil alive; 220ms without a dragover hides it. */
+        let veilHideTimer = 0;
+        const pokeVeil = () => {
+            dropVeil.classList.add("is-on");
+            if (veilHideTimer) clearTimeout(veilHideTimer);
+            veilHideTimer = setTimeout(() => dropVeil.classList.remove("is-on"), 220);
+        };
+        const killVeil = () => {
+            if (veilHideTimer) clearTimeout(veilHideTimer);
+            dropVeil.classList.remove("is-on");
+        };
+
+        window.addEventListener("dragover", (e) => {
+            if (!carriesFiles(e)) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "copy";
+            pokeVeil();
+        }, true);
+        window.addEventListener("drop", (e) => {
+            if (!carriesFiles(e)) return;
+            killVeil();
+            /* If the drop landed inside a bound slot, its own handler already
+               consumed the event; this runs only for drops on bare page area. */
+            if (e.defaultPrevented) return;
+            e.preventDefault();
+            const file = e.dataTransfer.files && e.dataTransfer.files[0];
+            if (!file) return;
+            /* Fall back to the most recently focused editable block. */
+            if (lastFocused) {
+                pendingSlot = null;
+                const mode = detectMode(file);
+                pendingMode = mode;
+                handleUpload(file, mode);
+            } else {
+                alert("이미지/파일을 삽입할 위치를 먼저 지정해 주세요.\n이미지 영역(점선 박스)이나 텍스트 블록 위에 드롭하세요.");
+            }
+        });
 
         toolbar.querySelector(".et-save").addEventListener("click", save);
         toolbar.querySelector(".et-discard").addEventListener("click", discard);
