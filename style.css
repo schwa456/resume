@@ -1194,7 +1194,7 @@ strong { font-weight: 600; color: var(--text); }
     letter-spacing: 0.1em;
     color: var(--accent);
     background: var(--accent-soft);
-    padding: 6px 10px;
+    padding: 6px 10px 8px 8px;
     border-radius: 4px;
     text-align: center;
     font-weight: 600;
